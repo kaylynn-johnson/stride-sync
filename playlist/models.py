@@ -17,7 +17,7 @@ class Song(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
     album = models.CharField(max_length=255, blank=True, null=True)
-    artist = models.ManyToManyField(Artist, related_name='songs')
+    artists = models.ManyToManyField(Artist, related_name='songs')
     tempo = models.FloatField(blank=False, null=False)
     duration = models.IntegerField(blank=False, null=False)
     year = models.IntegerField(blank=False, null=False)
