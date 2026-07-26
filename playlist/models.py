@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator
 from django.db import models
+import secrets
 
 class User(AbstractUser):
     def __str__(self):
@@ -35,3 +36,13 @@ class Song(models.Model):
     def __str__(self):
         return f"{self.title} by {self.artists.all().first().name if self.artists.exists() else 'Unknown Artist'}"
 
+class Playlist(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
+    name = models.CharField(max_length=255)
+    target_tempo = models.FloatField(blank=False, null=False)
+    slug = models.CharField(max_length=11, unique=True, default=secrets.token_urlsafe(8)) # token is encoded, so max_length is set to 11 to ensure the token is not truncated
+    is_public = models.BooleanField(default=False)
+    songs = models.ManyToManyField(Song, related_name='songs', blank=True)
+
+    def __str__(self):
+        return f"{self.name} by {self.owner.username}"
