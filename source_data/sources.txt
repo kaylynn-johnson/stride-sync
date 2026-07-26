@@ -1,3 +1,0 @@
-spotify-tracks-dataset.csv => https://www.kaggle.com/datasets/yashdev01/spotify-tracks-dataset
-songs & artists => https://www.kaggle.com/datasets/serkantysz/490k-spotify-song-audio-embeddings-and-metadata
-    - Removed columns from songs: artist_ids, lyrics, total_artist_followers, avg_artist_poularity & niche_genres
