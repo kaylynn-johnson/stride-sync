@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth. mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -64,7 +64,37 @@ def register(request):
     else:
         return render(request, "playlist/register.html")
 
+@login_required
+def change_password(request):
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+                return HttpResponseRedirect(reverse("login"))
+        current_password = request.POST["current_password"]
+        new_password = request.POST["new_password"]
+        confirmation = request.POST["confirmation"]
 
+        # Check if new password matches confirmation
+        if new_password != confirmation:
+            return render(request, "playlist/change_password.html", {
+                "message": "New passwords must match."
+            })
+
+        # Check if current password is correct
+        user = request.user
+        if not user.check_password(current_password):
+            return render(request, "playlist/change_password.html", {
+                "message": "Current password is incorrect."
+            })
+
+        # Change the password
+        user.set_password(new_password)
+        user.save()
+        login(request, user)  # Log the user in with the new password
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "playlist/change_password.html")
+
+@login_required
 def profile(request, username):
     try:
         user = User.objects.get(username=username)
@@ -75,6 +105,7 @@ def profile(request, username):
         "user": user
     })
 
+@login_required
 def recommendations(request, username):
     try:
         user = User.objects.get(username=username)
@@ -89,6 +120,7 @@ def recommendations(request, username):
         "recommended_songs": recommended_songs
     })
 
+@login_required
 def playlists(request):
     user = request.user
     if not user.is_authenticated:
