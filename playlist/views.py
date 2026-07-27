@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 from .models import User, Artist, Song, Playlist
+from .filters import SongFilter
 from .utils import pace_to_speed, speed_to_pace, speed_to_bpm, bpm_to_speed
 
 # Create your views here.
@@ -114,11 +115,35 @@ def recommendations(request, username):
         return HttpResponse("User not found.", status=404)
 
     # Placeholder for recommendations logic
-    recommended_songs = []  # This should be replaced with actual recommendation logic
+    # Determine which filters were applied by the user
+    # Filter must contain pace and could contain genre & year
+    # Will sort by popularity and return the top 30 songs that match the filters
+    filters = request.GET
+    filter_dict = filters.dict()
+    if not filter_dict.get("pace"):
+        return render(request, "playlist/recommendations.html", {
+            "user": user,
+            "message": "Pace is required for recommendations."
+        })
+
+    # convert pace to tempo range for filtering
+    # considering 30 seconds before and after the pace for a range of songs
+    filter_dict["tempo_min"] = speed_to_bpm(pace_to_speed(float(filter_dict.get("pace")) - 0.5)) 
+    filter_dict["tempo_max"] = speed_to_bpm(pace_to_speed(float(filter_dict.get("pace")) + 0.5))
+
+    # Remove pace from filter_dict as it's not a field in the Song model
+    del filter_dict["pace"]
+
+    song_filter = SongFilter(data=filter_dict)
+    recommended_songs = song_filter.qs[:30]
+    song_form = song_filter.form.as_div()
+    print('hi', flush=True)
+    print(song_form)  # Debugging line to check the form structure
 
     return render(request, "playlist/recommendations.html", {
         "user": user,
-        "recommended_songs": recommended_songs
+        "recommended_songs": recommended_songs,
+        "song_form": song_form
     })
 
 @login_required

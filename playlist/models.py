@@ -33,7 +33,8 @@ class Song(models.Model):
             models.Index(fields=['year'], name='year_idx'),
             models.Index(fields=['popularity'], name='popularity_idx'),
             models.Index(fields=['genre'], name='genre_idx'),
-    ]
+        ]
+       ordering = ['-popularity']
 
     def __str__(self):
         return f"{self.title} by {self.artists.all().first().name if self.artists.exists() else 'Unknown Artist'}"

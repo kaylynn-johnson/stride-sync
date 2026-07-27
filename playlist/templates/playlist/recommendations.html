@@ -2,10 +2,15 @@
 
 {% block body %}
     <h1>{{ user.username.capitalize }}'s Recommendations</h1>
-    {% if recommendations %}
+
+    <form method="get" action="{% url 'recommendations' user.username %}">
+        {{ song_form }}
+        <button type="submit">Get Recommendations</button>
+    </form>
+    {% if recommended_songs %}
         <ul>
-            {% for recommendation in recommendations %}
-                <li>{{ recommendation }}</li>
+            {% for song in recommended_songs %}
+                <li>{{ song }}</li>
             {% endfor %}
         </ul>
     {% else %}
