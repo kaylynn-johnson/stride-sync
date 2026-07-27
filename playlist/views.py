@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 from .models import User, Artist, Song, Playlist
+from .utils import pace_to_speed, speed_to_pace, speed_to_bpm, bpm_to_speed
 
 # Create your views here.
 

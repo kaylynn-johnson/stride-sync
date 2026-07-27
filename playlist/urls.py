@@ -13,5 +13,4 @@ urlpatterns = [
     path("profile/<str:username>/recommendations", views.recommendations, name="recommendations"),
     path("playlists", views.playlists, name="playlists"),
     path("playlists/<str:slug>", views.indiv_playlists, name="indiv_playlists")
-    #path("following/<str:username>", views.FollowingListView.as_view(), name="following")
 ]
