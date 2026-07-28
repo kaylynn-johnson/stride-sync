@@ -24,12 +24,11 @@ class Command(BaseCommand):
             for row in reader:
                 try:
                     pace = speed_to_pace(bpm_to_speed(float(row.get('tempo'))))
-                    print(f"Row: {row}, Pace: {pace}, Tempo: {row.get('tempo')}, Speed: {bpm_to_speed(float(row.get('tempo')))}")
                     song = Song(
                         spotify_id=row['id'],
                         title=row['name'],
                         album=row['album_name'],
-                        tempo=pace,
+                        pace=pace,
                         duration=row['duration_ms'],
                         year=row['year'],
                         genre=row['genre'],
