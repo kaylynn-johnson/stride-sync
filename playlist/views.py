@@ -120,30 +120,32 @@ def recommendations(request, username):
     # Will sort by popularity and return the top 30 songs that match the filters
     filters = request.GET
     filter_dict = filters.dict()
-    if not filter_dict.get("pace"):
-        return render(request, "playlist/recommendations.html", {
-            "user": user,
-            "message": "Pace is required for recommendations."
-        })
+    message = filter_dict
+    #if not filter_dict.get("pace"):
+    #    return render(request, "playlist/recommendations.html", {
+    #        "user": user,
+    #        "message": "Pace is required for recommendations."
+    #    })
 
     # convert pace to tempo range for filtering
     # considering 30 seconds before and after the pace for a range of songs
-    filter_dict["tempo_min"] = speed_to_bpm(pace_to_speed(float(filter_dict.get("pace")) - 0.5)) 
-    filter_dict["tempo_max"] = speed_to_bpm(pace_to_speed(float(filter_dict.get("pace")) + 0.5))
+    #filter_dict["tempo_min"] = speed_to_bpm(pace_to_speed(float(filter_dict.get("pace")) - 0.5)) 
+    #filter_dict["tempo_max"] = speed_to_bpm(pace_to_speed(float(filter_dict.get("pace")) + 0.5))
 
     # Remove pace from filter_dict as it's not a field in the Song model
-    del filter_dict["pace"]
+    #del filter_dict["pace"]
 
     song_filter = SongFilter(data=filter_dict)
     recommended_songs = song_filter.qs[:30]
     song_form = song_filter.form.as_div()
-    print('hi', flush=True)
-    print(song_form)  # Debugging line to check the form structure
+    #print('hi', flush=True)
+    #print(song_form)  # Debugging line to check the form structure
 
     return render(request, "playlist/recommendations.html", {
         "user": user,
         "recommended_songs": recommended_songs,
-        "song_form": song_form
+        "song_form": song_form,
+        "message": message
     })
 
 @login_required

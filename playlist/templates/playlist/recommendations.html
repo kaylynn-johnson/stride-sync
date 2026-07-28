@@ -3,6 +3,8 @@
 {% block body %}
     <h1>{{ user.username.capitalize }}'s Recommendations</h1>
 
+    <h3>{{ message }}</h3>
+
     <form method="get" action="{% url 'recommendations' user.username %}">
         {{ song_form }}
         <button type="submit">Get Recommendations</button>
@@ -11,6 +13,11 @@
         <ul>
             {% for song in recommended_songs %}
                 <li>{{ song }}</li>
+                <ul>
+                    <li>Genre: {{ song.genre }}</li>
+                    <li>Year: {{ song.year }}</li>
+                    <li>Pace: {{ song.pace|floatformat:1 }} min/mile</li>
+                </ul>
             {% endfor %}
         </ul>
     {% else %}

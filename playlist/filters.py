@@ -1,4 +1,5 @@
 import django_filters
+from django import forms
 
 from .models import Song
 
@@ -20,13 +21,13 @@ GENRES = [
 # In Django shell, run set(Song.objects.values_list('genre', flat=True).distinct()) to get the distinct genres in the database. Then, update the GENRES list above accordingly.
 
 class SongFilter(django_filters.FilterSet):
-    tempo_min = django_filters.NumberFilter(field_name='tempo', lookup_expr='gte')
-    tempo_max = django_filters.NumberFilter(field_name='tempo', lookup_expr='lte')
-    year = django_filters.AllValuesFilter(field_name='year')
-    #year_min = django_filters.NumberFilter(field_name='year', lookup_expr='gte')
-    #year_max = django_filters.NumberFilter(field_name='year', lookup_expr='lte')
-    genre = django_filters.MultipleChoiceFilter(field_name='genre', lookup_expr='icontains', choices=GENRES)
+    pace_min = django_filters.NumberFilter(field_name='pace', lookup_expr='gte', required=True)
+    pace_max = django_filters.NumberFilter(field_name='pace', lookup_expr='lte', required=True)
+    #year = django_filters.AllValuesFilter(field_name='year')
+    year_min = django_filters.NumberFilter(field_name='year', lookup_expr='gte')
+    year_max = django_filters.NumberFilter(field_name='year', lookup_expr='lte')
+    genre = django_filters.MultipleChoiceFilter(field_name='genre', lookup_expr='icontains', choices=GENRES, widget=forms.CheckboxSelectMultiple())
 
     class Meta:
         model = Song
-        fields = ['tempo_min', 'tempo_max', 'year', 'genre']
+        fields = ['pace_min', 'pace_max', 'year_min', 'year_max', 'genre']
