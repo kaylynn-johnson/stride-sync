@@ -3,6 +3,8 @@ from django.core.management.base import BaseCommand
 from playlist.models import Artist, Song
 from django.core.exceptions import ValidationError
 
+from playlist.utils import speed_to_pace, bpm_to_speed
+
 class Command(BaseCommand):
     help = 'Import data from a CSV file into the Song model'
 
@@ -21,11 +23,13 @@ class Command(BaseCommand):
             reader = csv.DictReader(csv_file)
             for row in reader:
                 try:
+                    pace = speed_to_pace(bpm_to_speed(float(row.get('tempo'))))
+                    print(f"Row: {row}, Pace: {pace}, Tempo: {row.get('tempo')}, Speed: {bpm_to_speed(float(row.get('tempo')))}")
                     song = Song(
                         spotify_id=row['id'],
                         title=row['name'],
                         album=row['album_name'],
-                        tempo=row['tempo'],
+                        tempo=pace,
                         duration=row['duration_ms'],
                         year=row['year'],
                         genre=row['genre'],

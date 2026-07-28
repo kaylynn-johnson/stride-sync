@@ -21,7 +21,7 @@ class Song(models.Model):
     title = models.CharField(max_length=255)
     album = models.CharField(max_length=255, blank=True, null=True)
     artists = models.ManyToManyField(Artist, related_name='songs')
-    tempo = models.FloatField(blank=False, null=False)
+    pace = models.FloatField(blank=False, null=False)
     duration = models.IntegerField(blank=False, null=False)
     year = models.IntegerField(blank=False, null=False)
     genre = models.CharField(max_length=255, blank=True, null=True)
@@ -29,7 +29,7 @@ class Song(models.Model):
 
     class Meta:
        indexes = [
-            models.Index(fields=['tempo'], name='tempo_idx'),
+            models.Index(fields=['pace'], name='pace_idx'),
             models.Index(fields=['year'], name='year_idx'),
             models.Index(fields=['popularity'], name='popularity_idx'),
             models.Index(fields=['genre'], name='genre_idx'),
