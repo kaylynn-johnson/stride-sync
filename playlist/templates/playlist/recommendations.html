@@ -1,4 +1,5 @@
 {% extends "playlist/layout.html" %}
+{% load pagination_tags %}
 
 {% block body %}
     <h1>{{ user.username.capitalize }}'s Recommendations</h1>
@@ -17,10 +18,34 @@
                     <li>Genre: {{ song.genre }}</li>
                     <li>Year: {{ song.year }}</li>
                     <li>Pace: {{ song.pace|floatformat:1 }} min/mile</li>
+                    <li>Popularity: {{ song.popularity }}</li>
                 </ul>
             {% endfor %}
         </ul>
     {% else %}
         <p>No recommendations available.</p>
+    {% endif %}
+
+    {% if recommended_songs.has_other_pages %}
+        <ul class="pagination">
+            {% if recommended_songs.has_previous %}
+                <li><a href="?{% url_replace request 'page' 1 %}">&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            {% for i in recommended_songs.paginator.page_range %}
+                {% if recommended_songs.number == i %}
+                    <li class="active"><span>{{ i }} <span class="sr-only">(current)
+                    </span></span></li>
+                {% else %}
+                    <li><a href="?{% url_replace request 'page' i %}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if recommended_songs.has_next %}
+                <li><a href="?{% url_replace request 'page' recommended_songs.next_page_number %}">&raquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+        </ul>
     {% endif %}
 {% endblock %}
