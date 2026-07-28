@@ -21,13 +21,10 @@ GENRES = [
 # In Django shell, run set(Song.objects.values_list('genre', flat=True).distinct()) to get the distinct genres in the database. Then, update the GENRES list above accordingly.
 
 class SongFilter(django_filters.FilterSet):
-    pace_min = django_filters.NumberFilter(field_name='pace', lookup_expr='gte', required=True)
-    pace_max = django_filters.NumberFilter(field_name='pace', lookup_expr='lte', required=True)
-    #year = django_filters.AllValuesFilter(field_name='year')
-    year_min = django_filters.NumberFilter(field_name='year', lookup_expr='gte')
-    year_max = django_filters.NumberFilter(field_name='year', lookup_expr='lte')
-    genre = django_filters.MultipleChoiceFilter(field_name='genre', lookup_expr='icontains', choices=GENRES, widget=forms.CheckboxSelectMultiple())
+    pace = django_filters.RangeFilter(field_name='pace', label='Pace Range', required=True)
+    year = django_filters.RangeFilter(field_name='year', label='Year Range')
+    genre = django_filters.ChoiceFilter(field_name='genre', lookup_expr='icontains', choices=GENRES, widget=forms.Select(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Song
-        fields = ['pace_min', 'pace_max', 'year_min', 'year_max', 'genre']
+        fields = ['pace', 'year', 'genre']
