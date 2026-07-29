@@ -115,31 +115,12 @@ def recommendations(request, username):
     except User.DoesNotExist:
         return HttpResponse("User not found.", status=404)
 
-    # Placeholder for recommendations logic
-    # Determine which filters were applied by the user
-    # Filter must contain pace and could contain genre & year
-    # Will sort by popularity and return the top 100 songs that match the filters
-    filters = request.GET
-    filter_dict = filters.dict()
-
-    song_filter = SongFilter(data=filter_dict)
-    recommended_songs = song_filter.qs[:100]
+    # Initial load of all songs
+    song_filter = SongFilter(request.GET, queryset=Song.objects.all())
     song_form = song_filter.form.as_div()
-
-    page = request.GET.get('page', 1)
-
-    paginator = Paginator(recommended_songs, 20)
-    try:
-        songs = paginator.page(page)
-    except PageNotAnInteger:
-        songs = paginator.page(1)
-    except EmptyPage:
-        songs = paginator.page(paginator.num_pages)
-
 
     return render(request, "playlist/recommendations.html", {
         "user": user,
-        "recommended_songs": songs,
         "song_form": song_form
     })
 
@@ -164,3 +145,29 @@ def indiv_playlists(request, slug):
     return render(request, "playlist/playlist.html", {
         "playlist": playlist
     })
+
+@login_required
+def songs_api(request):
+    filters = request.GET
+    filter_dict = filters.dict()
+
+    song_filter = SongFilter(data=filter_dict)
+    recommended_songs = song_filter.qs[:100]
+
+    page = request.GET["page"] if "page" in request.GET else 1
+
+    paginator = Paginator(recommended_songs, 20)
+    try:
+        songs = paginator.page(page)
+    except PageNotAnInteger:
+        songs = paginator.page(1)
+    except EmptyPage:
+        songs = paginator.page(paginator.num_pages)
+
+    data = {
+            "recommended_songs": list(songs.object_list.values()),
+            "artists": {song.id: ', '.join([artist.name for artist in song.artists.all()]) for song in songs.object_list},
+            "page": songs.number,
+            "num_pages": paginator.num_pages,
+        }
+    return JsonResponse(data, safe=False)

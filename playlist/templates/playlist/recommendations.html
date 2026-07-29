@@ -1,51 +1,22 @@
 {% extends "playlist/layout.html" %}
+{% load static %}
 {% load pagination_tags %}
+
+{% block script %}
+    <script src="{% static 'playlist/recommendations.js' %}"></script>
+{% endblock %}
 
 {% block body %}
     <h1>{{ user.username.capitalize }}'s Recommendations</h1>
 
     <h3>{{ message }}</h3>
 
-    <form method="get" action="{% url 'recommendations' user.username %}">
+    <form id="recommendations-form" style="display: flex; flex-direction: column; gap: 10px; width: 30%; margin-bottom: 20px;">
         {{ song_form }}
-        <button type="submit">Get Recommendations</button>
+        <button type="submit" id="get-recommendations">Get Recommendations</button>
     </form>
-    {% if recommended_songs %}
-        <ul>
-            {% for song in recommended_songs %}
-                <li>{{ song }}</li>
-                <ul>
-                    <li>Genre: {{ song.genre }}</li>
-                    <li>Year: {{ song.year }}</li>
-                    <li>Pace: {{ song.pace|floatformat:1 }} min/mile</li>
-                    <li>Popularity: {{ song.popularity }}</li>
-                </ul>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No recommendations available.</p>
-    {% endif %}
 
-    {% if recommended_songs.has_other_pages %}
-        <ul class="pagination">
-            {% if recommended_songs.has_previous %}
-                <li><a href="?{% url_replace request 'page' 1 %}">&laquo;</a></li>
-            {% else %}
-                <li class="disabled"><span>&laquo;</span></li>
-            {% endif %}
-            {% for i in recommended_songs.paginator.page_range %}
-                {% if recommended_songs.number == i %}
-                    <li class="active"><span>{{ i }} <span class="sr-only">(current)
-                    </span></span></li>
-                {% else %}
-                    <li><a href="?{% url_replace request 'page' i %}">{{ i }}</a></li>
-                {% endif %}
-            {% endfor %}
-            {% if recommended_songs.has_next %}
-                <li><a href="?{% url_replace request 'page' recommended_songs.next_page_number %}">&raquo;</a></li>
-            {% else %}
-                <li class="disabled"><span>&raquo;</span></li>
-            {% endif %}
-        </ul>
-    {% endif %}
+    <div id="recommendations-results"></div>
+
+    <div id="pagination" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;"></div>
 {% endblock %}
