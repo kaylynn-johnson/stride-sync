@@ -21,7 +21,7 @@ GENRES = [
 # In Django shell, run set(Song.objects.values_list('genre', flat=True).distinct()) to get the distinct genres in the database. Then, update the GENRES list above accordingly.
 
 class SongFilter(django_filters.FilterSet):
-    pace = django_filters.RangeFilter(field_name='pace', label='Pace Range', required=True)
+    pace = django_filters.RangeFilter(field_name='pace', label='Pace Range (min/mi)', required=True)
     year = django_filters.RangeFilter(field_name='year', label='Year Range')
     genre = django_filters.ChoiceFilter(field_name='genre', lookup_expr='icontains', choices=GENRES, widget=forms.Select(attrs={'class': 'form-control'}))
 
