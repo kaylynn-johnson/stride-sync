@@ -37,7 +37,7 @@ class Song(models.Model):
        ordering = ['-popularity']
 
     def __str__(self):
-        return f"{self.title} by {self.artists.all().first().name if self.artists.exists() else 'Unknown Artist'}"
+        return f"{self.title} by {', '.join([artist.name for artist in self.artists.all()]) if self.artists.exists() else 'Unknown Artist'}"
 
 class Playlist(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
