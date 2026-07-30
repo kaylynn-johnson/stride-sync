@@ -171,3 +171,15 @@ def songs_api(request):
             "num_pages": paginator.num_pages,
         }
     return JsonResponse(data, safe=False)
+
+@login_required
+def playlists_api(request):
+
+    playlists = Playlist.objects.filter(owner=User.objects.get(username=request.user.username))
+
+    data = {
+            "titles": [p.title for p in playlists],
+            "target_paces": [p.target_pace for p in playlists]
+    }
+
+    return JsonResponse(data, safe=False)

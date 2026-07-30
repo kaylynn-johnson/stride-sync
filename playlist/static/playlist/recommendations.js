@@ -77,6 +77,11 @@ function updateSongList(data) {
                     <li><strong>Duration:</strong> ${timeString}</li>
                 </ul>
             </div>
+            <div id="modal-add-${song.id}" style="display: none;">
+                <span class="close btn" id="close-add-${song.id}" style="padding-right: 10px;">&times;</span>
+                <p><strong>Playlists</strong></p>
+                <ul id="playlists-${song.id}"></ul>
+            </div>
         `;
         songList.appendChild(songItem);
         modalControl(song.id);
@@ -141,8 +146,35 @@ function modalControl(song_id) {
 function addControl(song_id) {
     // Add the onclick event listener
     let addBtn = document.querySelector(`#add-${song_id}`);
+    let addModal = document.querySelector(`#modal-add-${song_id}`);
+    let addClose = document.querySelector(`#close-add-${song_id}`);
 
     addBtn.onclick = function() {
-        
+        // fetch the playlist for the logged in user
+        console.log('Button clicked!');
+        fetch(`/api/playlists/`)
+            .then(request => request.json())
+            .then(data => {
+                const playlistList = document.querySelector(`#playlists-${song_id}`);
+                playlistList.innerHTML = "";
+                for (let i = 0; i < (data.titles).length; i++) {
+                    playlistList.innerHTML += `
+                        <li><a href="#">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`
+                }
+                playlistList.innerHTML += '<li><a href="#">Add to new playlist</li>'
+                addModal.style.display = "block";
+            })
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    addClose.onclick = function() {
+        addModal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == addModal) {
+            addModal.style.display = "none";
+        }
     }
 }

@@ -15,5 +15,6 @@ urlpatterns = [
     path("playlists/<str:slug>", views.indiv_playlists, name="indiv_playlists"),
 
     # API Routes
-    path("api/songs/", views.songs_api, name="songs_api")
+    path("api/songs/", views.songs_api, name="songs_api"),
+    path("api/playlists/", views.playlists_api, name="playlists_api")
 ]
