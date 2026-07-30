@@ -58,15 +58,15 @@ function updateSongList(data) {
         songItem.innerHTML = `
             <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
                 <div style="font-weight: bold; display: flex; justify-content: space-between;">
-                    <div>${song.title} by ${data.artists[song.id]}</div>
-                    <div><button id="more-info-${song.id}">More info</button></div>
+                    <div style="content-align: center;">${song.title} by ${data.artists[song.id]} &ensp; <button class="btn btn-sm" id="add-${song.id}"><strong>+</strong></button></div>
+                    <div><button id="more-info-${song.id}" class="btn btn-primary btn-sm">More info</button></div>
                 </div>
                 <div style="font-size: 0.9em; color: #666;">
                     ${song.genre} | ${Math.round(song.pace * 10) / 10} min/mi | ${song.year}
                 </div>
             </div>
             <div id="modal-content-${song.id}" style="display: none;">
-                <span class="close" id="close-${song.id}" style="padding-right: 10px;">&times;</span>
+                <span class="close btn" id="close-${song.id}" style="padding-right: 10px;">&times;</span>
                 <p><strong>${song.title}</strong> by ${data.artists[song.id]}</p>
                 <ul>
                     <li><strong>Album:</strong> ${song.album}</li>
@@ -80,6 +80,7 @@ function updateSongList(data) {
         `;
         songList.appendChild(songItem);
         modalControl(song.id);
+        addControl(song.id);
     });
 } 
 
@@ -109,6 +110,7 @@ function convertDuration(ms) {
 }
 
 function modalControl(song_id) {
+    // Modified from https://www.w3schools.com/howto/howto_css_modals.asp
     // Get the modal
     let modal = document.querySelector(`#modal-content-${song_id}`);
 
@@ -120,7 +122,7 @@ function modalControl(song_id) {
 
     // When the user clicks the button, open the modal 
     btn.onclick = function() {
-            modal.style.display = "block";
+        modal.style.display = "block";
     }
 
     // When the user clicks on <span> (x), close the modal
@@ -133,5 +135,14 @@ function modalControl(song_id) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
+    }
+}
+
+function addControl(song_id) {
+    // Add the onclick event listener
+    let addBtn = document.querySelector(`#add-${song_id}`);
+
+    addBtn.onclick = function() {
+        
     }
 }
