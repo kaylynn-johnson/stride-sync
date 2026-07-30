@@ -51,17 +51,35 @@ function updateSongList(data) {
     const songList = document.querySelector("#recommendations-results");
     songList.innerHTML = "";
     data.recommended_songs.forEach(song => {
+        console.log(song);
+        const timeString = convertDuration(song.duration);
         const songItem = document.createElement("div");
         songItem.classList.add("song-item");
         songItem.innerHTML = `
             <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-                <div style="font-weight: bold;">${song.title} by ${data.artists[song.id]}</div>
+                <div style="font-weight: bold; display: flex; justify-content: space-between;">
+                    <div>${song.title} by ${data.artists[song.id]}</div>
+                    <div><button id="more-info-${song.id}">More info</button></div>
+                </div>
                 <div style="font-size: 0.9em; color: #666;">
                     ${song.genre} | ${Math.round(song.pace * 10) / 10} min/mi | ${song.year}
                 </div>
             </div>
+            <div id="modal-content-${song.id}" style="display: none;">
+                <span class="close" id="close-${song.id}" style="padding-right: 10px;">&times;</span>
+                <p><strong>${song.title}</strong> by ${data.artists[song.id]}</p>
+                <ul>
+                    <li><strong>Album:</strong> ${song.album}</li>
+                    <li><strong>Year:</strong> ${song.year}</li>
+                    <li><strong>Genre:</strong> ${song.genre}</li>
+                    <li><strong>Popularity:</strong> ${song.popularity}/100</li>
+                    <li><strong>Pace:</strong> ${Math.round(song.pace * 10) / 10} min/mi</li>
+                    <li><strong>Duration:</strong> ${timeString}</li>
+                </ul>
+            </div>
         `;
         songList.appendChild(songItem);
+        modalControl(song.id);
     });
 } 
 
@@ -79,4 +97,41 @@ function updatePagination(data) {
     const lastPageLink = document.createElement("div");
     lastPageLink.innerHTML = `<a href="?page=${data.num_pages}">&raquo;</a>`;
     pagination.appendChild(lastPageLink);
+}
+
+function convertDuration(ms) {
+    const given_seconds = ms / 1000;
+    let minutes = Math.floor((given_seconds) / 60);
+    let seconds = Math.floor(given_seconds - (minutes * 60));
+    let timeString =  minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    console.log(`ms: ${ms}; given_seconds: ${given_seconds}; minutes: ${minutes}; seconds: ${seconds}`);
+    return timeString;
+}
+
+function modalControl(song_id) {
+    // Get the modal
+    let modal = document.querySelector(`#modal-content-${song_id}`);
+
+    // Get the button that opens the modal
+    let btn = document.querySelector(`#more-info-${song_id}`);
+
+    // Get the <span> element that closes the modal
+    let close = document.querySelector(`#close-${song_id}`);
+
+    // When the user clicks the button, open the modal 
+    btn.onclick = function() {
+            modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    close.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 }
