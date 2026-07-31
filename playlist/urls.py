@@ -16,5 +16,6 @@ urlpatterns = [
 
     # API Routes
     path("api/songs/", views.songs_api, name="songs_api"),
-    path("api/playlists/", views.playlists_api, name="playlists_api")
+    path("api/playlists/", views.playlists_api, name="playlists_api"),
+    path("api/playlists/songs/", views.add_songs_api, name="add_songs_api")
 ]
