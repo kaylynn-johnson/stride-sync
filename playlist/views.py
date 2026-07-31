@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+import json
 
 from .models import User, Artist, Song, Playlist
 from .filters import SongFilter
@@ -175,11 +176,32 @@ def songs_api(request):
 @login_required
 def playlists_api(request):
 
-    playlists = Playlist.objects.filter(owner=User.objects.get(username=request.user.username))
+    if request.method == "GET":
 
-    data = {
-            "titles": [p.title for p in playlists],
-            "target_paces": [p.target_pace for p in playlists]
-    }
+        playlists = Playlist.objects.filter(owner=request.user)
 
-    return JsonResponse(data, safe=False)
+        data = {
+                "titles": [p.name for p in playlists],
+                "target_paces": [p.target_pace for p in playlists]
+        }
+
+        return JsonResponse(data, safe=False)
+
+    if request.method == "POST":
+        data = json.loads(request.body)
+        name = data.get("name")
+        target_pace = data.get("pace")
+        song = Song.objects.get(id=data.get("song_id"))
+        owner = request.user
+        playlist = Playlist(
+            owner=owner,
+            name=name,
+            target_pace=target_pace,
+        )
+        playlist.save()
+
+        playlist.songs.add(song)
+        #playlist.save()
+        return JsonResponse({"message": "Successfully created playlist"})
+
+    return JsonResponse({"error": "Must use POST or GET at this route"}, status=400)

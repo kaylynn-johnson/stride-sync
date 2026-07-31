@@ -47,6 +47,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }); 
 });
 
+// Fetch CSRF Token from meta tag in header
+function getCsrfToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        // Successfully found tag
+        return metaTag.content;
+    }
+    throw new Error('CSRF token meta tag not found');
+}
+
 function updateSongList(data) {
     const songList = document.querySelector("#recommendations-results");
     songList.innerHTML = "";
@@ -82,10 +92,25 @@ function updateSongList(data) {
                 <p><strong>Playlists</strong></p>
                 <ul id="playlists-${song.id}"></ul>
             </div>
+            <div class="form-popup" id="new-playlist-${song.id}" style="display: none;">
+                <form class="form-container" id="playlist-form-${song.id}">
+                    <h1>Create Playlist</h1>
+
+                    <label for="name"><b>Name</b></label>
+                    <input type="text" placeholder="Enter Playlist Name" name="name" id="playlist-name-${song.id}" required>
+
+                    <label for="pace"><b>Target Pace</b></label>
+                    <input type="number" name="pace" value="${Math.round(song.pace * 10) / 10}" id="playlist-pace-${song.id}" diabled>
+
+                    <button type="submit" class="btn">Create</button>
+                    <button type="button" class="btn cancel" onclick="closeForm(${song.id})">Close</button>
+                </form>
+            </div>
         `;
         songList.appendChild(songItem);
         modalControl(song.id);
         addControl(song.id);
+        createPlaylist(song.id);
     });
 } 
 
@@ -161,7 +186,7 @@ function addControl(song_id) {
                     playlistList.innerHTML += `
                         <li><a href="#">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`
                 }
-                playlistList.innerHTML += '<li><a href="#">Add to new playlist</li>'
+                playlistList.innerHTML += `<li><a href="#" onclick="openForm(${song_id})">Add to new playlist</li>`
                 addModal.style.display = "block";
             })
     }
@@ -177,4 +202,48 @@ function addControl(song_id) {
             addModal.style.display = "none";
         }
     }
+}
+
+function openForm(song_id) {
+    document.querySelector(`#new-playlist-${song_id}`).style.display = 'block';
+}
+
+function closeForm(song_id) {
+    document.querySelector(`#new-playlist-${song_id}`).style.display = 'none';
+}
+
+function createPlaylist(song_id) {
+    const playlistForm = document.querySelector(`#playlist-form-${song_id}`);
+
+    playlistForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const playlistName = document.querySelector(`#playlist-name-${song_id}`).value;
+        const playlistPace = document.querySelector(`#playlist-pace-${song_id}`).value;
+
+        console.log(`Adding ${playlistName} playlist at ${playlistPace} min/mi pace`);
+
+        fetch(`/api/playlists/`, {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                name: playlistName,
+                pace: playlistPace,
+                song_id: song_id
+            })
+        })
+        .then(request => request.json())
+        .then(result => {
+            // should get a success
+            console.log(result);
+            if (result.error !== undefined) {
+                // error
+                alert(`Could not create ${playlistName} playlist. Error: ${result.error}`);
+            } else {
+                alert(`${playlistName} playlist successfully created!`);
+                document.querySelector(`#new-playlist-${song_id}`).style.display = 'none';
+            }
+        })
+    })
 }
