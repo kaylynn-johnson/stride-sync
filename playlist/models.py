@@ -43,9 +43,14 @@ class Playlist(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
     name = models.CharField(max_length=255)
     target_pace = models.FloatField(blank=False, null=False)
-    slug = models.CharField(max_length=11, unique=True, default=secrets.token_urlsafe(8)) # token is encoded, so max_length is set to 11 to ensure the token is not truncated
+    slug = models.CharField(max_length=11, unique=True) # token is encoded, so max_length is set to 11 to ensure the token is not truncated
     is_public = models.BooleanField(default=False)
     songs = models.ManyToManyField(Song, related_name='songs', blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = secrets.token_urlsafe(8)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} by {self.owner.username}"
