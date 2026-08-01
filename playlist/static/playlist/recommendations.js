@@ -65,6 +65,7 @@ function updateSongList(data) {
         const timeString = convertDuration(song.duration);
         const songItem = document.createElement("div");
         songItem.classList.add("song-item");
+        songItem.id = `song-${song.id}`;
         songItem.innerHTML = `
             <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
                 <div style="font-weight: bold; display: flex; justify-content: space-between;">
@@ -83,7 +84,7 @@ function updateSongList(data) {
                     <li><strong>Year:</strong> ${song.year}</li>
                     <li><strong>Genre:</strong> ${song.genre}</li>
                     <li><strong>Popularity:</strong> ${song.popularity}/100</li>
-                    <li><strong>Pace:</strong> ${Math.round(song.pace * 10) / 10} min/mi</li>
+                    <li><strong>Pace:</strong> <span id="pace-${song.id}">${Math.round(song.pace * 10) / 10}</span> min/mi</li>
                     <li><strong>Duration:</strong> ${timeString}</li>
                 </ul>
             </div>
@@ -103,7 +104,7 @@ function updateSongList(data) {
                     <input type="number" name="pace" value="${Math.round(song.pace * 10) / 10}" id="playlist-pace-${song.id}" diabled>
 
                     <button type="submit" class="btn">Create</button>
-                    <button type="button" class="btn cancel" onclick="closeForm(${song.id})">Close</button>
+                    <button type="button" class="btn cancel" onclick="closeForm("new-playlist-${song.id}")">Close</button>
                 </form>
             </div>
         `;
@@ -162,7 +163,7 @@ function modalControl(song_id) {
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
-        if (event.target == modal) {
+        if (event.target === modal) {
             modal.style.display = "none";
         }
     }
@@ -184,9 +185,9 @@ function addControl(song_id) {
                 playlistList.innerHTML = "";
                 for (let i = 0; i < (data.titles).length; i++) {
                     playlistList.innerHTML += `
-                        <li><a href="#">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`
+                        <li><a href="#" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
                 }
-                playlistList.innerHTML += `<li><a href="#" onclick="openForm(${song_id})">Add to new playlist</li>`
+                playlistList.innerHTML += `<li><a href="#" onclick="openForm("new-playlist-${song_id}")">Add to new playlist</li>`;
                 addModal.style.display = "block";
             })
     }
@@ -198,18 +199,18 @@ function addControl(song_id) {
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
-        if (event.target == addModal) {
+        if (event.target === addModal) {
             addModal.style.display = "none";
         }
     }
 }
 
-function openForm(song_id) {
-    document.querySelector(`#new-playlist-${song_id}`).style.display = 'block';
+function openForm(element_id) {
+    document.querySelector(`#${element_id}`).style.display = 'block';
 }
 
-function closeForm(song_id) {
-    document.querySelector(`#new-playlist-${song_id}`).style.display = 'none';
+function closeForm(element_id) {
+    document.querySelector(`#${element_id}`).style.display = 'none';
 }
 
 function createPlaylist(song_id) {
@@ -246,4 +247,67 @@ function createPlaylist(song_id) {
             }
         })
     })
+}
+
+function addSong(song_id, playlist_name) {
+    // API call to add song to playlist
+    fetch(`/api/playlists/songs/`, {
+        method: "POST",
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({
+            playlist_name: playlist_name,
+            song_id: song_id
+        })
+    })
+    .then(request => request.json())
+    .then(result => {
+        if (result.error !== undefined) {
+            // Error
+            alert(`Could not add song to ${playlist_name}. Error: ${result.error}`);
+        } else {
+            alert(`Song successfully added to ${playlist_name}!`);
+        }
+    })
+}
+
+function addSongControl(song_id, playlist_name, target_pace) {
+    // Find pace of song
+    const song_pace = parseFloat(document.querySelector(`#pace-${song_id}`).innerHTML);
+    if (Math.abs(song_pace - target_pace) > 1) {
+        // Alert that the song is outside +/- 1min of playlist target pace
+        const song_div = document.querySelector(`#song-${song_id}`);
+        //const song_warning = document.createElement('div');
+        // Add modal to warn user of mis-match pace and allow to override
+        song_div.innerHTML += `
+            <div class="form-popup" id="warning-playlist-${song_id}" style="display: block;">
+                <form class="form-container" id="warning-form-${song_id}">
+                    <h1>WARNING</h1>
+
+                    <div>The song you are trying to add is more than 1 minute outside the target pace of the playlist</div>
+
+                    <div>Would you still like to add it?</div> 
+
+                    <button type="submit" class="btn btn-danger">Add Anyways</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="closeForm('warning-playlist-${song_id}')">No</button>
+                    <button type="button" class="btn cancel" onclick="closeForm('warning-playlist-${song_id}')">Close</button>
+                </form>
+            </div>
+        `;
+        //song_div.appendChild(song_warning);
+
+        // add onsubmit action to Add Anyways
+        document.querySelector(`#warning-form-${song_id}`).addEventListener("submit", function(event) {
+            event.preventDefault();
+            // No fields to find
+            // Call add song
+            addSong(song_id, playlist_name);
+            document.querySelector(`#warning-playlist-${song_id}`).style.display = "none";
+        });
+
+    } else {
+        // Pacing of song matches up so add it
+        addSong(song_id, playlist_name);
+    }
 }

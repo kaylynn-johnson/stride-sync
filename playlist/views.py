@@ -209,9 +209,9 @@ def playlists_api(request):
 def add_songs_api(request):
     # add song to existing playlist
     if request.method == "POST":
-        data = json.loads(request)
-        playlist = Playlist.objects.get(owner=request.user, name=data.get['playlist_name'])
-        song = Song.objects.get(id=data.get['song_id'])
+        data = json.loads(request.body)
+        playlist = Playlist.objects.get(owner=request.user, name=data.get('playlist_name'))
+        song = Song.objects.get(id=data.get('song_id'))
         playlist.songs.add(song)
 
         return JsonResponse({"message": "Successfully added song to playlist"})
