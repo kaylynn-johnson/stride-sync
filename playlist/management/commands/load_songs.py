@@ -23,7 +23,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(csv_file)
             for row in reader:
                 try:
-                    pace = speed_to_pace(bpm_to_speed(float(row.get('tempo'))))
+                    pace = round(speed_to_pace(bpm_to_speed(float(row.get('tempo')))), 1)
                     song = Song(
                         spotify_id=row['id'],
                         title=row['name'],
