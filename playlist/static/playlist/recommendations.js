@@ -185,32 +185,38 @@ function addControl(song_id) {
                 playlistList.innerHTML = "";
                 for (let i = 0; i < (data.titles).length; i++) {
                     playlistList.innerHTML += `
-                        <li><a href="#" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
+                        <li><a href="#song-${song_id}" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
                 }
-                playlistList.innerHTML += `<li><a href="#" onclick="openForm("new-playlist-${song_id}")">Add to new playlist</li>`;
+                playlistList.innerHTML += `<li><a href="#song-${song_id}" onclick="openForm('new-playlist-${song_id}')">Add to new playlist</li>`;
                 addModal.style.display = "block";
             })
     }
 
     // When the user clicks on <span> (x), close the modal
-    addClose.onclick = function() {
+    addClose.addEventListener ("click", function() {
+        console.log('Clicking close');
         addModal.style.display = "none";
-    }
+    });
 
     // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target === addModal) {
-            addModal.style.display = "none";
-        }
-    }
+    //window.onclick = function(event) {
+    //    if (event.target === addModal) {
+    //        addModal.style.display = "none";
+    //    }
+    //}
 }
 
 function openForm(element_id) {
     document.querySelector(`#${element_id}`).style.display = 'block';
+    window.scrollTo({ top: document.querySelector(`#${element_id}`).offsetTop, behavior: 'smooth' });
 }
 
 function closeForm(element_id) {
     document.querySelector(`#${element_id}`).style.display = 'none';
+    // Assume the last bit is the song ID
+    const song_id = element_id.split("-").at(-1);
+    console.log(song_id);
+    window.scrollTo({ top: document.querySelector(`#song-${song_id}`).offsetTop, behavior: 'smooth' });
 }
 
 function createPlaylist(song_id) {
@@ -244,6 +250,7 @@ function createPlaylist(song_id) {
             } else {
                 alert(`${playlistName} playlist successfully created!`);
                 document.querySelector(`#new-playlist-${song_id}`).style.display = 'none';
+                window.scrollTo({ top: document.querySelector(`#song-${song_id}`).offsetTop, behavior: 'smooth' });
             }
         })
     })
@@ -304,10 +311,12 @@ function addSongControl(song_id, playlist_name, target_pace) {
             // Call add song
             addSong(song_id, playlist_name);
             document.querySelector(`#warning-playlist-${song_id}`).style.display = "none";
+            window.scrollTo({ top: document.querySelector(`#song-${song_id}`).offsetTop, behavior: 'smooth' });
         });
 
     } else {
         // Pacing of song matches up so add it
         addSong(song_id, playlist_name);
+        window.scrollTo({ top: document.querySelector(`#song-${song_id}`).offsetTop, behavior: 'smooth' });
     }
 }
