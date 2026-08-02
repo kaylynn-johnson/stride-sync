@@ -1,5 +1,17 @@
 {% extends "playlist/layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'playlist/playlists.js' %}"></script>
+{% endblock %}
 
 {% block body %}
-    <h1>{{ playlist.name }}</h1>
+    {% if user.is_authenticated %}
+        <h1>{{ user.username.capitalize }}'s Playlists</h1>
+    {% else %}
+        <h1>Public Playlists</h1>
+    {% endif %}
+
+    <div id="all-playlists"></div>
+
 {% endblock %}
