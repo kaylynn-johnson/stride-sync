@@ -125,26 +125,28 @@ def recommendations(request, username):
         "song_form": song_form
     })
 
-@login_required
+
 def playlists(request):
-    user = request.user
-    if not user.is_authenticated:
-        return HttpResponseRedirect(reverse("login"))
 
-    user_playlists = Playlist.objects.filter(owner=user)
-
-    return render(request, "playlist/playlists.html", {
-        "playlists": user_playlists
-    })
+    return render(request, "playlist/playlists.html")
 
 def indiv_playlists(request, slug):
     try:
         playlist = Playlist.objects.get(slug=slug)
+        if (playlist.owner != request.user) and not playlist.is_public:
+            # throw error the non-owner is trying to view a private playlist
+            return HttpResponse("Playlist is private", status=404)
+        songs = playlist.songs.all()
+        many_to_many_info = zip(
+            songs,
+            [', '.join([artist.name for artist in song.artists.all()]) for song in songs]
+        )
     except Playlist.DoesNotExist:
         return HttpResponse("Playlist not found.", status=404)
 
-    return render(request, "playlist/playlist.html", {
-        "playlist": playlist
+    return render(request, "playlist/indiv_playlist.html", {
+        "playlist": playlist,
+        "songs": many_to_many_info
     })
 
 @login_required
@@ -173,21 +175,29 @@ def songs_api(request):
         }
     return JsonResponse(data, safe=False)
 
-@login_required
+
 def playlists_api(request):
 
     if request.method == "GET":
-
-        playlists = Playlist.objects.filter(owner=request.user)
+        # view playlists
+        if request.user.is_authenticated:
+            playlists = Playlist.objects.filter(owner=request.user)
+        else:
+            playlists = Playlist.objects.filter(is_public=True)
 
         data = {
+                "ids": [p.id for p in playlists],
                 "titles": [p.name for p in playlists],
-                "target_paces": [p.target_pace for p in playlists]
+                "target_paces": [p.target_pace for p in playlists],
+                "slugs": [p.slug for p in playlists],
+                "owners": [p.owner.username for p in playlists],
+                "num_songs": [p.songs.all().count() for p in playlists]
         }
 
         return JsonResponse(data, safe=False)
 
     if request.method == "POST":
+        # creates a playlist
         data = json.loads(request.body)
         name = data.get("name")
         target_pace = data.get("pace")
@@ -204,16 +214,36 @@ def playlists_api(request):
         #playlist.save()
         return JsonResponse({"message": "Successfully created playlist"})
 
-    return JsonResponse({"error": "Must use POST or GET at this route"}, status=400)
+    if request.method == "PUT":
+        # changes the viewability of the playlist
+        data = json.loads(request.body)
+        id = data.get("playlist_id")
+        playlist = Playlist.objects.get(id=id)
+        if data.get("public") is not None:
+            public = data.get("public")
+            playlist.is_public = public
+            playlist.save()
+            return JsonResponse({"message": "Successfully changed status"})
+        if data.get("remove") is not None:
+            playlist.delete()
+            return JsonResponse({"message": "Successfully removed playlist"})
+        return JsonResponse({"message": "No action taken"})
 
-def add_songs_api(request):
+
+    return JsonResponse({"error": "Must use POST, GET or PUT at this route"}, status=400)
+
+@login_required
+def modify_songs_api(request):
     # add song to existing playlist
     if request.method == "POST":
         data = json.loads(request.body)
         playlist = Playlist.objects.get(owner=request.user, name=data.get('playlist_name'))
         song = Song.objects.get(id=data.get('song_id'))
-        playlist.songs.add(song)
-
-        return JsonResponse({"message": "Successfully added song to playlist"})
+        if data.get('add'):
+            playlist.songs.add(song)
+            return JsonResponse({"message": "Successfully added song to playlist"})
+        else:
+            playlist.songs.remove(song)
+            return JsonResponse({"message": "Successfully removed song to playlist"})
 
     return JsonResponse({"error": "Muse use POST at this route"}, status=400)

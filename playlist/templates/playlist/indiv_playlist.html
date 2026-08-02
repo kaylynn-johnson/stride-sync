@@ -1,0 +1,58 @@
+{% extends 'playlist/layout.html' %}
+{% load math_filters %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'playlist/indivPlaylist.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="header" style="font-weight: bold; display: flex; justify-content: space-between;">
+        <div>
+            <h1>{{ playlist.name }}</h1>
+            <h4>By {{ playlist.owner }}</h4>
+            <h5>Target Pace: {{ playlist.target_pace|floatformat:1 }} min/mi</h5>
+        </div>
+        <div style="align-self: center;">
+            {% if user.username == playlist.owner.username %}
+                {% if playlist.is_public %}
+                    <button class="btn btn-outline-danger" id="make-private" data-playlist-id="{{ playlist.id }}">Make Private</button>
+                {% else %}
+                    <button class="btn btn-outline-success" id="make-public" data-playlist-id="{{ playlist.id }}">Make Public</button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+
+    {% for song, artists in songs %}
+        <div id="song-info-{{ song.id }}">
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                <div style="font-weight: bold; display: flex; justify-content: space-between;">
+                    <div>
+                        {{ song.title }} by {{ artists }}
+                        {% if user.username == playlist.owner.username %}
+                            &ensp; <button class="remove btn btn-sm btn-outline-danger" data-song-id="{{ song.id }}" data-playlist-name="{{ playlist.name }}"><strong>Remove</strong></button>
+                        {% endif %}
+                    </div>
+                    <div><button class="more-info btn btn-primary btn-sm" data-song-id="{{ song.id }}">More info</button></div>
+                </div>
+                <div style="font-size: 0.9em; color: #666;">
+                    {{ song.genre }} | {{ song.pace|floatformat:1 }} min/mi | {{ song.year }}
+                </div>
+            </div>
+            <div id="modal-content-{{ song.id }}" style="display: none;">
+                <span class="close btn" data-song-id="{{ song.id }}" style="padding-right: 10px;">&times;</span>
+                <p><strong>{{ song.title }}</strong> by {{ artists }}</p>
+                <ul>
+                    <li><strong>Album:</strong> {{ song.album }}</li>
+                    <li><strong>Year:</strong> {{ song.year }}</li>
+                    <li><strong>Genre:</strong> {{ song.genre }}</li>
+                    <li><strong>Popularity:</strong> {{ song.popularity }}/100</li>
+                    <li><strong>Pace:</strong> {{ song.pace|floatformat:1 }} min/mi</li>
+                    <li><strong>Duration:</strong> {{ song.duration|timeString }}</li>
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

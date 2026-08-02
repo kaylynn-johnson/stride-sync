@@ -69,7 +69,7 @@ function updateSongList(data) {
         songItem.innerHTML = `
             <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
                 <div style="font-weight: bold; display: flex; justify-content: space-between;">
-                    <div style="content-align: center;">${song.title} by ${data.artists[song.id]} &ensp; <button class="btn btn-sm" id="add-${song.id}"><strong>+</strong></button></div>
+                    <div style="align-content: center;">${song.title} by ${data.artists[song.id]} &ensp; <button class="btn btn-sm btn-outline-success" id="add-${song.id}"><strong>Add</strong></button></div>
                     <div><button id="more-info-${song.id}" class="btn btn-primary btn-sm">More info</button></div>
                 </div>
                 <div style="font-size: 0.9em; color: #666;">
@@ -104,7 +104,7 @@ function updateSongList(data) {
                     <input type="number" name="pace" value="${Math.round(song.pace * 10) / 10}" id="playlist-pace-${song.id}" diabled>
 
                     <button type="submit" class="btn">Create</button>
-                    <button type="button" class="btn cancel" onclick="closeForm("new-playlist-${song.id}")">Close</button>
+                    <button type="button" class="btn cancel" onclick="closeForm('new-playlist-${song.id}')">Close</button>
                 </form>
             </div>
         `;
@@ -179,17 +179,17 @@ function addControl(song_id) {
         // fetch the playlist for the logged in user
         console.log('Button clicked!');
         fetch(`/api/playlists/`)
-            .then(request => request.json())
-            .then(data => {
-                const playlistList = document.querySelector(`#playlists-${song_id}`);
-                playlistList.innerHTML = "";
-                for (let i = 0; i < (data.titles).length; i++) {
-                    playlistList.innerHTML += `
-                        <li><a href="#song-${song_id}" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
-                }
-                playlistList.innerHTML += `<li><a href="#song-${song_id}" onclick="openForm('new-playlist-${song_id}')">Add to new playlist</li>`;
-                addModal.style.display = "block";
-            })
+        .then(request => request.json())
+        .then(data => {
+            const playlistList = document.querySelector(`#playlists-${song_id}`);
+            playlistList.innerHTML = "";
+            for (let i = 0; i < (data.titles).length; i++) {
+                playlistList.innerHTML += `
+                    <li><a href="#song-${song_id}" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
+            }
+            playlistList.innerHTML += `<li><a href="#song-${song_id}" onclick="openForm('new-playlist-${song_id}')">Add to new playlist</li>`;
+            addModal.style.display = "block";
+        })
     }
 
     // When the user clicks on <span> (x), close the modal
@@ -197,13 +197,6 @@ function addControl(song_id) {
         console.log('Clicking close');
         addModal.style.display = "none";
     });
-
-    // When the user clicks anywhere outside of the modal, close it
-    //window.onclick = function(event) {
-    //    if (event.target === addModal) {
-    //        addModal.style.display = "none";
-    //    }
-    //}
 }
 
 function openForm(element_id) {
@@ -265,7 +258,8 @@ function addSong(song_id, playlist_name) {
         },
         body: JSON.stringify({
             playlist_name: playlist_name,
-            song_id: song_id
+            song_id: song_id,
+            add: true
         })
     })
     .then(request => request.json())
