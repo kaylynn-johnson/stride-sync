@@ -57,6 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Add event listener to copy playlist link to clipboard
+    document.querySelector(".copy").onclick = (button) => {
+        alert(`Shareable link is: \n${window.location.href}`);
+    }
+
     // Add event listeners for more info and close buttons
     document.querySelectorAll(".more-info").forEach((button) => {
         button.onclick = () => {
