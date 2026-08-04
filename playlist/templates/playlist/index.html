@@ -1,6 +1,34 @@
 {% extends "playlist/layout.html" %}
+{% load static %}
 
 {% block body %}
     <h1>Welcome to Stride Sync!</h1>
-    <p>To get started, please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a>.</p>
+    {% if not user.is_authenticated %}
+        <p style="text-align: center;">To get started, please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a>.</p>
+    {% endif %}
+
+    <div style="height: 5px;"></div>
+    <!-- Code adapted from https://freefrontend.com/css-infographics/#2023-ol-cards-l -->
+    <ol>
+        <li style="--accent-color: #FF6F00">
+            <div class="icon"><i class="fa-thin fa-person-running"></i></div>
+            <div class="title">Input Pace</div>
+            <div class="descr">Input your running/walking pace in minutes per mile.</div>
+        </li>
+        <li style="--accent-color: #008DC2">
+            <div class="icon"><i class="fa-light fa-headphones"></i></div>
+            <div class="title">BPM Matched Songs</div>
+            <div class="descr">Receive recommended songs that match your pace and likes.</div>
+        </li>
+        <li style="--accent-color: #0B456A">
+            <div class="icon"><i class="fa-light fa-user-music"></i></div>
+            <div class="title">Add to Playlist</div>
+            <div class="descr">Add songs to a playlist of your choice.</div>
+        </li>
+        <li style="--accent-color: #6A829A">
+            <div class="icon"><i class="fa-light fa-share-nodes"></i></div>
+            <div class="title">Share with Friends</div>
+            <div class="descr">Make playlists public to share with friends!</div>
+        </li>
+    </ol>
 {% endblock %}
