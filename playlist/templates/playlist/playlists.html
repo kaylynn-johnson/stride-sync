@@ -6,11 +6,7 @@
 {% endblock %}
 
 {% block body %}
-    {% if user.is_authenticated %}
-        <h1>{{ user.username.capitalize }}'s Playlists</h1>
-    {% else %}
-        <h1>Public Playlists</h1>
-    {% endif %}
+    <h1>Public Playlists</h1>
 
     <div id="all-playlists"></div>
 
