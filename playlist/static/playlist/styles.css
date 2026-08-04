@@ -117,3 +117,19 @@ body {
   flex-direction: column;
   justify-content: center;
 }
+
+.nav>li {
+    display: inline-block;
+}
+
+.navbar-nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-left: 0;
+    padding-right: 5;
+    margin-bottom: 0;
+    list-style: none;
+    column-gap: 5vh;
+    align-items: center;
+}
