@@ -119,15 +119,18 @@ function updatePagination(data) {
     const pagination = document.querySelector("#pagination");
     pagination.innerHTML = "";
     const firstPageLink = document.createElement("div");
-    firstPageLink.innerHTML = `<a href="?page=1">&laquo;</a>`;
+    firstPageLink.innerHTML = `<a href="?page=1"><i class="fa-regular fa-backward"></i></a>`;
+    firstPageLink.style.fontSize = '20px';
     pagination.appendChild(firstPageLink);
     for (let i = 1; i <= data.num_pages; i++) {
         const pageLink = document.createElement("div");
-        pageLink.innerHTML = `<a href="?page=${i}">${i}</a>`;
+        pageLink.innerHTML = `<a href="?page=${i}"><i class="fa-regular fa-square-${i}"></i></a>`;
+        pageLink.style.fontSize = '20px';
         pagination.appendChild(pageLink);
     }
     const lastPageLink = document.createElement("div");
-    lastPageLink.innerHTML = `<a href="?page=${data.num_pages}">&raquo;</a>`;
+    lastPageLink.innerHTML = `<a href="?page=${data.num_pages}"><i class="fa-regular fa-forward"></i></a>`;
+    lastPageLink.style.fontSize = '20px';
     pagination.appendChild(lastPageLink);
 }
 
