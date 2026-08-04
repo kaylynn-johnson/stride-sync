@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
             playlistItem.innerHTML = `
                 <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
                     <div style="font-weight: bold; display: flex; justify-content: space-between;">
-                        <div style="align-content: center;">${data.titles[i]} by ${data.owners[i]}</div>
+                        <div style="align-content: center; max-width: 70%">${data.titles[i]} by ${data.owners[i]}</div>
                         <div><button class="btn btn-primary btn-sm" onclick="goToPlaylist('${data.slugs[i]}')">View Playlist</button></div>
                     </div>
                     <div style="font-size: 0.9em; color: #666;">
