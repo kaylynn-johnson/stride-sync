@@ -13,6 +13,7 @@
             <meta name="username" content="{{ user.username }}">
         {% else %}
             <script type="text/javascript">var logged_in=false;</script>
+            <meta name="username" content="NONE">
         {% endif %}
         {% block script %}
         {% endblock %}
