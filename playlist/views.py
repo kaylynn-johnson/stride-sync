@@ -180,10 +180,7 @@ def playlists_api(request):
 
     if request.method == "GET":
         # view playlists
-        if request.user.is_authenticated:
-            playlists = Playlist.objects.filter(owner=request.user)
-        else:
-            playlists = Playlist.objects.filter(is_public=True)
+        playlists = Playlist.objects.filter(is_public=True)
 
         data = {
                 "ids": [p.id for p in playlists],
