@@ -1,5 +1,18 @@
 {% extends "playlist/layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'playlist/profile.js' %}"></script>
+{% endblock %}
 
 {% block body %}
-    <h1>{{ user.username.capitalize }}'s Profile</h1>
+    {% if user.is_authenticated %}
+        <h1>{{ target_user.username.capitalize }}'s Profile</h1>
+    {% else %}
+        <h1>Login required</h1>
+        <p>To get started, please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a>.</p>
+    {% endif %}
+
+    <div id="all-playlists"></div>
+
 {% endblock %}

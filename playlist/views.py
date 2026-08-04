@@ -99,14 +99,14 @@ def change_password(request):
         return render(request, "playlist/change_password.html")
 
 @login_required
-def profile(request, username):
+def profile(request, target_username):
     try:
-        user = User.objects.get(username=username)
+        target_user = User.objects.get(username=target_username)
     except User.DoesNotExist:
         return HttpResponse("User not found.", status=404)
 
     return render(request, "playlist/profile.html", {
-        "user": user
+        "target_user": target_user
     })
 
 @login_required
@@ -247,3 +247,28 @@ def modify_songs_api(request):
             return JsonResponse({"message": "Successfully removed song to playlist"})
 
     return JsonResponse({"error": "Muse use POST at this route"}, status=400)
+
+@login_required
+def profile_api(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Must use GET method at this route"}, status=400)
+
+    target_username = request.GET["username"]
+
+    if target_username == request.user.username:
+        # Viewing own profile
+        playlists = Playlist.objects.filter(owner=request.user)
+    else:
+        # Viewing someone else's profile
+        playlists = Playlist.objects.filter(owner=User.objects.get(username=target_username), is_public=True)
+
+    data = {
+        "ids": [p.id for p in playlists],
+        "titles": [p.name for p in playlists],
+        "target_paces": [p.target_pace for p in playlists],
+        "slugs": [p.slug for p in playlists],
+        "owners": [p.owner.username for p in playlists],
+        "num_songs": [p.songs.all().count() for p in playlists]
+    }
+
+    return JsonResponse(data, safe=False)
