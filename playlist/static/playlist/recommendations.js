@@ -21,7 +21,12 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(response => response.json())
             .then(data => {
                 updateSongList(data);
-                history.pushState(null, "", `?${queryString}`);
+                if (queryString.includes('page')) {
+                    // page already included
+                    history.pushState(null, "", `?${queryString}`);
+                } else {
+                    history.pushState(null, "", `?${queryString}&page=1`);
+                }
                 updatePagination(data);
                 window.scrollTo({ top: document.querySelector('#recommendations-results').offsetTop, behavior: 'smooth' });
             });
@@ -116,17 +121,18 @@ function updatePagination(data) {
     const pagination = document.querySelector("#pagination");
     pagination.innerHTML = "";
     const firstPageLink = document.createElement("div");
-    firstPageLink.innerHTML = `<a href="?page=1"><i class="fa-regular fa-backward"></i></a>`;
+    const initialQueryString = new URLSearchParams(window.location.search).toString().split("&page=")[0];
+    firstPageLink.innerHTML = `<a href="?${initialQueryString}&page=1"><i class="fa-regular fa-backward"></i></a>`;
     firstPageLink.style.fontSize = '20px';
     pagination.appendChild(firstPageLink);
     for (let i = 1; i <= data.num_pages; i++) {
         const pageLink = document.createElement("div");
-        pageLink.innerHTML = `<a href="?page=${i}"><i class="fa-regular fa-square-${i}"></i></a>`;
+        pageLink.innerHTML = `<a href="?${initialQueryString}&page=${i}"><i class="fa-regular fa-square-${i}"></i></a>`;
         pageLink.style.fontSize = '20px';
         pagination.appendChild(pageLink);
     }
     const lastPageLink = document.createElement("div");
-    lastPageLink.innerHTML = `<a href="?page=${data.num_pages}"><i class="fa-regular fa-forward"></i></a>`;
+    lastPageLink.innerHTML = `<a href="?${initialQueryString}&page=${data.num_pages}"><i class="fa-regular fa-forward"></i></a>`;
     lastPageLink.style.fontSize = '20px';
     pagination.appendChild(lastPageLink);
 }
@@ -174,22 +180,28 @@ function addControl(song_id) {
     let addBtn = document.querySelector(`#add-${song_id}`);
     let addModal = document.querySelector(`#modal-add-${song_id}`);
     let addClose = document.querySelector(`#close-add-${song_id}`);
+    const username = document.querySelector('meta[name="username"]').content;
 
     addBtn.onclick = function() {
         // fetch the playlist for the logged in user
         console.log('Button clicked!');
-        fetch(`/api/playlists/`)
-        .then(request => request.json())
-        .then(data => {
-            const playlistList = document.querySelector(`#playlists-${song_id}`);
-            playlistList.innerHTML = "";
-            for (let i = 0; i < (data.titles).length; i++) {
-                playlistList.innerHTML += `
-                    <li><a href="#song-${song_id}" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
-            }
-            playlistList.innerHTML += `<li><a href="#song-${song_id}" onclick="openForm('new-playlist-${song_id}')">Add to new playlist</li>`;
-            addModal.style.display = "block";
-        })
+        if (addModal.style.display === "none") {
+            // user has not yet hit the add button
+            // Call profile api to get user's playlists instead of public playlists
+            fetch(`/api/profile/?username=${username}`)
+            .then(request => request.json())
+            .then(data => {
+                const playlistList = document.querySelector(`#playlists-${song_id}`);
+                playlistList.innerHTML = "";
+                for (let i = 0; i < (data.titles).length; i++) {
+                    playlistList.innerHTML += `
+                        <li><a href="#song-${song_id}" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
+                }
+                playlistList.innerHTML += `<li><a href="#song-${song_id}" onclick="openForm('new-playlist-${song_id}')">Add to new playlist</li>`;
+                addModal.style.display = "block";
+            })
+        }
+        
     }
 
     // When the user clicks on <span> (x), close the modal
