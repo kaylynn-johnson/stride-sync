@@ -1,3 +1,4 @@
 .env
 .dockerignore
-playlist/management/data/*
+playlist/management/data/songs.csv
+playlist/management/data/artists.csv
