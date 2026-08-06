@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: stride_sync_test
+          POSTGRES_USER: stride_sync_test
+          POSTGRES_PASSWORD: stride_sync_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_DB: stride_sync_test
+      POSTGRES_USER: stride_sync_test
+      POSTGRES_PASSWORD: stride_sync_test
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      DJANGO_SECRET_KEY: ci-dummy-secret-key-not-for-production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint
+        run: flake8 .
+
+      - name: Django check
+        run: python manage.py check
+
+      - name: Migrate
+        run: python manage.py migrate
+
+      - name: Test
+        run: python manage.py test
