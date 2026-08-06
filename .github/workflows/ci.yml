@@ -1,4 +1,4 @@
-name: CI
+name: StrideSync CI
 
 on:
   push:
@@ -34,9 +34,9 @@ jobs:
       DJANGO_SECRET_KEY: ci-dummy-secret-key-not-for-production
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           cache: "pip"
