@@ -7,13 +7,13 @@
 {% endblock %}
 
 {% block body %}
-    <div class="header" style="font-weight: bold; display: flex; justify-content: space-between; margin: 10px;">
+    <div class="header">
         <div>
-            <h1 style="text-align: left;">{{ playlist.name }}</h1>
+            <h1>{{ playlist.name }}</h1>
             <h4>By {{ playlist.owner }}</h4>
             <h5>Target Pace: {{ playlist.target_pace|floatformat:1 }} min/mi</h5>
         </div>
-        <div style="align-self: center;">
+        <div class="header-actions">
             <div>
                 {% if user.username == playlist.owner.username %}
                     {% if playlist.is_public %}
@@ -24,18 +24,18 @@
                 {% endif %}
             </div>
             <div>
-                <button class="copy btn btn-outline-primary" data-playlist-slug="{{ playlist.slug }}" style="margin-top: 8px;">Share</button>
+                <button class="copy btn btn-outline-primary" data-playlist-slug="{{ playlist.slug }}">Share</button>
             </div>
-            
+
         </div>
     </div>
     
 
     {% for song, artists in songs %}
         <div id="song-info-{{ song.id }}">
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-                <div style="font-weight: bold; display: flex; justify-content: space-between;">
-                    <div style="max-width: 70%;">
+            <div class="list-card">
+                <div class="list-card-header">
+                    <div class="list-card-title-actionable">
                         {{ song.title }} by {{ artists }}
                         {% if user.username == playlist.owner.username %}
                             &ensp; <button class="remove btn btn-sm btn-outline-danger" data-song-id="{{ song.id }}" data-playlist-name="{{ playlist.name }}"><strong>Remove</strong></button>
@@ -43,12 +43,12 @@
                     </div>
                     <div><button class="more-info btn btn-primary btn-sm" data-song-id="{{ song.id }}">More info</button></div>
                 </div>
-                <div style="font-size: 0.9em; color: #666;">
+                <div class="list-card-meta">
                     {{ song.genre }} | {{ song.pace|floatformat:1 }} min/mi | {{ song.year }}
                 </div>
             </div>
-            <div id="modal-content-{{ song.id }}" style="display: none; margin: 10px;">
-                <span class="close btn" data-song-id="{{ song.id }}" style="padding-right: 10px;">&times;</span>
+            <div id="modal-content-{{ song.id }}" class="song-detail-panel">
+                <span class="close btn modal-close-btn" data-song-id="{{ song.id }}">&times;</span>
                 <p><strong>{{ song.title }}</strong> by {{ artists }}</p>
                 <ul>
                     <li><strong>Album:</strong> {{ song.album }}</li>

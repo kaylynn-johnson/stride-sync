@@ -72,17 +72,17 @@ function updateSongList(data) {
         songItem.classList.add("song-item");
         songItem.id = `song-${song.id}`;
         songItem.innerHTML = `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-                <div style="font-weight: bold; display: flex; justify-content: space-between;">
-                    <div style="align-content: center; max-width: 70%;">${song.title} by ${data.artists[song.id]} &ensp; <button class="btn btn-sm btn-outline-success" id="add-${song.id}"><strong>Add</strong></button></div>
+            <div class="list-card">
+                <div class="list-card-header">
+                    <div class="list-card-title-actionable">${song.title} by ${data.artists[song.id]} &ensp; <button class="btn btn-sm btn-outline-success" id="add-${song.id}"><strong>Add</strong></button></div>
                     <div><button id="more-info-${song.id}" class="btn btn-primary btn-sm">More info</button></div>
                 </div>
-                <div style="font-size: 0.9em; color: #666;">
+                <div class="list-card-meta">
                     ${song.genre} | ${Math.round(song.pace * 10) / 10} min/mi | ${song.year}
                 </div>
             </div>
-            <div id="modal-content-${song.id}" style="display: none; margin-left: 10px;">
-                <span class="close btn" id="close-${song.id}" style="padding-right: 10px;">&times;</span>
+            <div id="modal-content-${song.id}" class="song-detail-panel">
+                <span class="close btn modal-close-btn" id="close-${song.id}">&times;</span>
                 <p><strong>${song.title}</strong> by ${data.artists[song.id]}</p>
                 <ul>
                     <li><strong>Album:</strong> ${song.album}</li>
@@ -93,18 +93,18 @@ function updateSongList(data) {
                     <li><strong>Duration:</strong> ${timeString}</li>
                 </ul>
             </div>
-            <div id="modal-add-${song.id}" style="display: none; margin-left: 10px">
-                <span class="close btn" id="close-add-${song.id}" style="padding-right: 10px;">&times;</span>
+            <div id="modal-add-${song.id}" class="song-detail-panel">
+                <span class="close btn modal-close-btn" id="close-add-${song.id}">&times;</span>
                 <p><strong>Playlists</strong></p>
                 <ul id="playlists-${song.id}"></ul>
             </div>
-            <div class="form-popup" id="new-playlist-${song.id}" style="display: none;">
-                <form class="form-container" id="playlist-form-${song.id}" style="margin-left: 10px; margin-bottom: 10px;">
-                    <h1 style="text-align: left;">Create Playlist</h1>
+            <div class="form-popup" id="new-playlist-${song.id}">
+                <form class="form-container playlist-create-form" id="playlist-form-${song.id}">
+                    <h1>Create Playlist</h1>
                     <label for="name"><b>Name</b> <input type="text" placeholder="Enter Playlist Name" name="name" id="playlist-name-${song.id}" required></label>
                     <label for="pace"><b>Target Pace</b> <input type="number" name="pace" value="${Math.round(song.pace * 10) / 10}" id="playlist-pace-${song.id}" disabled></label>
                     <div>
-                        <button type="submit" class="btn btn-outline-secondary" style="margin-right: 10px;">Create</button>
+                        <button type="submit" class="btn btn-outline-secondary popup-btn-gap">Create</button>
                         <button type="button" class="btn btn-outline-secondary cancel" onclick="closeForm('new-playlist-${song.id}')">Close</button>
                     </div>
                 </form>
@@ -185,7 +185,7 @@ function addControl(song_id) {
     addBtn.onclick = function() {
         // fetch the playlist for the logged in user
         console.log('Button clicked!');
-        if (addModal.style.display === "none") {
+        if (getComputedStyle(addModal).display === "none") {
             // user has not yet hit the add button
             // Call profile api to get user's playlists instead of public playlists
             fetch(`/api/profile/?username=${username}`)
@@ -294,16 +294,16 @@ function addSongControl(song_id, playlist_name, target_pace) {
         //const song_warning = document.createElement('div');
         // Add modal to warn user of mis-match pace and allow to override
         song_div.innerHTML += `
-            <div class="form-popup" id="warning-playlist-${song_id}" style="display: block; margin: 10px">
+            <div class="form-popup warning-popup" id="warning-playlist-${song_id}" style="display: block;">
                 <form class="form-container" id="warning-form-${song_id}">
-                    <h1 style="text-align: left;">WARNING</h1>
+                    <h1>WARNING</h1>
 
                     <div>The song you are trying to add is more than 1 minute outside the target pace of the playlist.</div>
 
-                    <div><strong>Would you still like to add it?</strong></div> 
+                    <div><strong>Would you still like to add it?</strong></div>
 
-                    <button type="submit" class="btn btn-danger" style="margin-right: 10px;">Add Anyways</button>
-                    <button type="button" class="btn btn-outline-primary" style="margin-right: 10px;" onclick="closeForm('warning-playlist-${song_id}')">No</button>
+                    <button type="submit" class="btn btn-danger popup-btn-gap">Add Anyways</button>
+                    <button type="button" class="btn btn-outline-primary popup-btn-gap" onclick="closeForm('warning-playlist-${song_id}')">No</button>
                     <button type="button" class="btn btn-outline-secondary cancel" onclick="closeForm('warning-playlist-${song_id}')">Close</button>
                 </form>
             </div>

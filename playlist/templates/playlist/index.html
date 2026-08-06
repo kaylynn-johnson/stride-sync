@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block body %}
-    <h1>Welcome to Stride Sync!</h1>
+    <h1>Welcome to StrideSync!</h1>
     {% if not user.is_authenticated %}
-        <p style="text-align: center;">To get started, please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a>.</p>
+        <p class="text-center">To get started, please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a>.</p>
     {% endif %}
 
-    <div style="height: 5px;"></div>
+    <div class="spacer"></div>
     <!-- Code adapted from https://freefrontend.com/css-infographics/#2023-ol-cards-l -->
     <ol>
         <li style="--accent-color: #FF6F00">

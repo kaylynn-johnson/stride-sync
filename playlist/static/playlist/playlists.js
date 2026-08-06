@@ -24,12 +24,12 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(`Owner: ${data.owners[i]}`);
             console.log(`Logged in user: ${username}`);
             playlistItem.innerHTML = `
-                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-                    <div style="font-weight: bold; display: flex; justify-content: space-between;">
-                        <div style="align-content: center; max-width: 70%">${data.titles[i]} by ${data.owners[i]}</div>
+                <div class="list-card">
+                    <div class="list-card-header">
+                        <div class="list-card-title-actionable">${data.titles[i]} by ${data.owners[i]}</div>
                         <div><button class="btn btn-primary btn-sm" onclick="goToPlaylist('${data.slugs[i]}')">View Playlist</button></div>
                     </div>
-                    <div style="font-size: 0.9em; color: #666;">
+                    <div class="list-card-meta">
                         ${Math.round(data.target_paces[i] * 10) / 10} min/mi | ${data.num_songs[i]} songs
                     </div>
                 </div>

@@ -122,6 +122,106 @@ body {
     display: inline-block;
 }
 
+.navbar-brand {
+    font-weight: bold;
+}
+
+.form-margin {
+    margin: 10px;
+}
+
+.spacer {
+    height: 5px;
+}
+
+.list-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.list-card-header {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.list-card-title-actionable {
+    align-content: center;
+    max-width: 70%;
+}
+
+.list-card-meta {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.header {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.header h1 {
+    text-align: left;
+}
+
+.header-actions {
+    align-self: center;
+}
+
+.copy {
+    margin-top: 8px;
+}
+
+.song-detail-panel {
+    display: none;
+    margin: 10px;
+}
+
+.modal-close-btn {
+    padding-right: 10px;
+}
+
+.form-popup {
+    display: none;
+}
+
+.form-container h1 {
+    text-align: left;
+}
+
+.playlist-create-form {
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.warning-popup {
+    margin: 10px;
+}
+
+.popup-btn-gap {
+    margin-right: 10px;
+}
+
+.recommendations-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 500px;
+    width: 90%;
+    margin-bottom: 20px;
+    margin-left: 10px;
+}
+
+.pagination-row {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
 .navbar-nav {
     display: flex;
     flex-direction: row;

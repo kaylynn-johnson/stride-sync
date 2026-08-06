@@ -10,12 +10,12 @@
 
     <h3>{{ message }}</h3>
 
-    <form id="recommendations-form" style="display: flex; flex-direction: column; gap: 10px; max-width: 500px; width: 90%; margin-bottom: 20px; margin-left: 10px;">
+    <form id="recommendations-form" class="recommendations-form">
         {{ song_form }}
         <button type="submit" id="get-recommendations">Get Recommendations</button>
     </form>
 
     <div id="recommendations-results"></div>
 
-    <div id="pagination" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;"></div>
+    <div id="pagination" class="pagination-row"></div>
 {% endblock %}

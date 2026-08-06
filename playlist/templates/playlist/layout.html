@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>{% block title %}Stride Sync{% endblock %}</title>
+        <title>{% block title %}StrideSync{% endblock %}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{% static 'playlist/styles.css' %}" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1"> 
@@ -22,7 +22,7 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'index' %}" style="font-weight: bold;">Stride Sync</a>
+                <a class="navbar-brand" href="{% url 'index' %}">StrideSync</a>
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
