@@ -121,7 +121,9 @@ function updatePagination(data) {
     const pagination = document.querySelector("#pagination");
     pagination.innerHTML = "";
     const firstPageLink = document.createElement("div");
-    const initialQueryString = new URLSearchParams(window.location.search).toString().split("&page=")[0];
+    const baseParams = new URLSearchParams(window.location.search);
+    baseParams.delete("page");
+    const initialQueryString = baseParams.toString();
     firstPageLink.innerHTML = `<a href="?${initialQueryString}&page=1"><i class="fa-regular fa-backward"></i></a>`;
     firstPageLink.style.fontSize = '20px';
     pagination.appendChild(firstPageLink);
