@@ -47,6 +47,9 @@ jobs:
       - name: Install flake8
         run: pip install flake8
 
+      - name: Install selenium
+        run: pip install selenium
+
       - name: Lint
         run: flake8 .
 
