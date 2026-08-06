@@ -1,4 +1,6 @@
 .env
 .dockerignore
+__pycache__/
+*.pyc
 playlist/management/data/songs.csv
 playlist/management/data/artists.csv
