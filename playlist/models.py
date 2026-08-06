@@ -3,11 +3,13 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 import secrets
 
+
 class User(AbstractUser):
     email = models.EmailField(unique=True, null=False, blank=False)
 
     def __str__(self):
         return f"{self.username}"
+
 
 class Artist(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True)
@@ -15,7 +17,8 @@ class Artist(models.Model):
 
     def __str__(self):
         return f"{self.name}"
-    
+
+
 class Song(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
@@ -28,22 +31,29 @@ class Song(models.Model):
     popularity = models.PositiveIntegerField(validators=[MaxValueValidator(100)], blank=True, null=True)
 
     class Meta:
-       indexes = [
+        indexes = [
             models.Index(fields=['pace'], name='pace_idx'),
             models.Index(fields=['year'], name='year_idx'),
             models.Index(fields=['popularity'], name='popularity_idx'),
             models.Index(fields=['genre'], name='genre_idx'),
         ]
-       ordering = ['-popularity']
+        ordering = ['-popularity']
 
     def __str__(self):
-        return f"{self.title} by {', '.join([artist.name for artist in self.artists.all()]) if self.artists.exists() else 'Unknown Artist'}"
+        artist_names = (
+            ', '.join([artist.name for artist in self.artists.all()])
+            if self.artists.exists()
+            else 'Unknown Artist'
+        )
+        return f"{self.title} by {artist_names}"
+
 
 class Playlist(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='playlists')
     name = models.CharField(max_length=255)
     target_pace = models.FloatField(blank=False, null=False)
-    slug = models.CharField(max_length=11, unique=True) # token is encoded, so max_length is set to 11 to ensure the token is not truncated
+    # token is encoded, so max_length is set to 11 to ensure the token is not truncated
+    slug = models.CharField(max_length=11, unique=True)
     is_public = models.BooleanField(default=False)
     songs = models.ManyToManyField(Song, related_name='songs', blank=True)
 

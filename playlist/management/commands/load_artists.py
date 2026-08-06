@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from playlist.models import Artist
 from django.core.exceptions import ValidationError
 
+
 class Command(BaseCommand):
     help = 'Import data from a CSV file into the Artist model'
 

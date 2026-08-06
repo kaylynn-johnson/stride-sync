@@ -7,11 +7,11 @@ from django.urls import reverse
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 import json
 
-from .models import User, Artist, Song, Playlist
+from .models import User, Song, Playlist
 from .filters import SongFilter
-from .utils import pace_to_speed, speed_to_pace, speed_to_bpm, bpm_to_speed
 
 # Create your views here.
+
 
 def index(request):
     return render(request, "playlist/index.html")
@@ -68,11 +68,12 @@ def register(request):
     else:
         return render(request, "playlist/register.html")
 
+
 @login_required
 def change_password(request):
     if request.method == "POST":
         if not request.user.is_authenticated:
-                return HttpResponseRedirect(reverse("login"))
+            return HttpResponseRedirect(reverse("login"))
         current_password = request.POST["current_password"]
         new_password = request.POST["new_password"]
         confirmation = request.POST["confirmation"]
@@ -98,6 +99,7 @@ def change_password(request):
     else:
         return render(request, "playlist/change_password.html")
 
+
 @login_required
 def profile(request, target_username):
     try:
@@ -108,6 +110,7 @@ def profile(request, target_username):
     return render(request, "playlist/profile.html", {
         "target_user": target_user
     })
+
 
 @login_required
 def recommendations(request, username):
@@ -130,6 +133,7 @@ def playlists(request):
 
     return render(request, "playlist/playlists.html")
 
+
 def indiv_playlists(request, slug):
     try:
         playlist = Playlist.objects.get(slug=slug)
@@ -148,6 +152,7 @@ def indiv_playlists(request, slug):
         "playlist": playlist,
         "songs": many_to_many_info
     })
+
 
 @login_required
 def songs_api(request):
@@ -169,7 +174,10 @@ def songs_api(request):
 
     data = {
             "recommended_songs": list(songs.object_list.values()),
-            "artists": {song.id: ', '.join([artist.name for artist in song.artists.all()]) for song in songs.object_list},
+            "artists": {
+                song.id: ', '.join([artist.name for artist in song.artists.all()])
+                for song in songs.object_list
+            },
             "page": songs.number,
             "num_pages": paginator.num_pages,
         }
@@ -208,7 +216,6 @@ def playlists_api(request):
         playlist.save()
 
         playlist.songs.add(song)
-        #playlist.save()
         return JsonResponse({"message": "Successfully created playlist"})
 
     if request.method == "PUT":
@@ -226,8 +233,8 @@ def playlists_api(request):
             return JsonResponse({"message": "Successfully removed playlist"})
         return JsonResponse({"message": "No action taken"})
 
-
     return JsonResponse({"error": "Must use POST, GET or PUT at this route"}, status=400)
+
 
 @login_required
 def modify_songs_api(request):
@@ -244,6 +251,7 @@ def modify_songs_api(request):
             return JsonResponse({"message": "Successfully removed song to playlist"})
 
     return JsonResponse({"error": "Muse use POST at this route"}, status=400)
+
 
 @login_required
 def profile_api(request):

@@ -8,13 +8,15 @@ def pace_to_speed(pace):
         raise ValueError("Pace must be greater than zero.")
     return 60 / pace
 
+
 def speed_to_pace(speed):
     """
     Convert speed (miles per hour) to pace (minutes per mile).
     """
     if speed <= 0:
         raise ValueError("Speed must be greater than zero.")
-    return 60 / speed 
+    return 60 / speed
+
 
 def speed_to_bpm(speed):
     """
@@ -31,6 +33,7 @@ def speed_to_bpm(speed):
         bpm = speed * 1609.34 / 60 / (170 * 0.45 / 100)
 
     return bpm
+
 
 def bpm_to_speed(bpm):
     """

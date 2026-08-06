@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 
 from playlist.utils import speed_to_pace, bpm_to_speed
 
+
 class Command(BaseCommand):
     help = 'Import data from a CSV file into the Song model'
 
@@ -53,9 +54,12 @@ class Command(BaseCommand):
             try:
                 song_instance = Song.objects.get(spotify_id=song.spotify_id)
                 for (artist_id, artist_name) in zip(artist_ids.split(','), artist_names.split(',')):
-                    artist_id = artist_id.replace('"', '').replace("[", "").replace("]", "").strip()  # Clean up the artist_id
-                    artist_name = artist_name.replace('"', '').replace("[", "").replace("]", "").strip() # Clean up the artist_name
-                    artist_instance, _ = Artist.objects.get_or_create(spotify_id=artist_id, defaults={'name': artist_name})
+                    # Clean up the artist_id and artist_name
+                    artist_id = artist_id.replace('"', '').replace("[", "").replace("]", "").strip()
+                    artist_name = artist_name.replace('"', '').replace("[", "").replace("]", "").strip()
+                    artist_instance, _ = Artist.objects.get_or_create(
+                        spotify_id=artist_id, defaults={'name': artist_name}
+                    )
                     artist_links.append(Through(song_id=song_instance.id, artist_id=artist_instance.id))
             except Artist.DoesNotExist:
                 self.stderr.write(f"Artist with spotify_id {artist_id} does not exist.")
