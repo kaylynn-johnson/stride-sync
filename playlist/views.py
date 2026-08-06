@@ -201,6 +201,9 @@ def playlists_api(request):
 
         return JsonResponse(data, safe=False)
 
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=401)
+
     if request.method == "POST":
         # creates a playlist
         data = json.loads(request.body)
@@ -223,6 +226,10 @@ def playlists_api(request):
         data = json.loads(request.body)
         id = data.get("playlist_id")
         playlist = Playlist.objects.get(id=id)
+        if playlist.owner != request.user:
+            return JsonResponse(
+                {"error": "You do not have permission to modify this playlist"}, status=403
+            )
         if data.get("public") is not None:
             public = data.get("public")
             playlist.is_public = public
