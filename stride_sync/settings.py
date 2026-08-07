@@ -24,9 +24,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
+
+# Cookie/transport hardening - relaxed automatically for local HTTP dev via DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_HSTS_SECONDS = 0 if DEBUG else 31536000
+# CSRF_TRUSTED_ORIGINS = ["https://your-production-domain.example"]  # set once a real domain exists
 
 
 # Application definition
@@ -40,10 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
+    'csp',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,6 +60,21 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Content-Security-Policy: only allow the CDNs the app actually uses.
+# style-src needs 'unsafe-inline' because templates set inline style="--accent-color: ..."
+# on card elements; script-src intentionally has no 'unsafe-inline' since the app has
+# no legitimate inline scripts that need to run untrusted/dynamic data.
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'", "'unsafe-inline'", "https://stackpath.bootstrapcdn.com", "https://fonts.googleapis.com", "https://pro.fontawesome.com"],
+        "font-src": ["'self'", "https://fonts.gstatic.com", "https://pro.fontawesome.com"],
+        "img-src": ["'self'", "data:"],
+        "connect-src": ["'self'", "https://stackpath.bootstrapcdn.com"],
+    },
+}
 
 ROOT_URLCONF = 'stride_sync.urls'
 
