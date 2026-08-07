@@ -57,5 +57,9 @@
             {% block body %}
             {% endblock %}
         </div>
+
+        <footer class="site-footer">
+            <p>&copy; {% now "Y" %} StrideSync. Song data from the <a href="{% url 'index' %}#about-the-data">550K Spotify Songs dataset</a> on Kaggle.</p>
+        </footer>
     </body>
 </html>
