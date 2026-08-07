@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django_ratelimit.decorators import ratelimit
 import json
 
 from .models import User, Song, Playlist
@@ -17,6 +19,7 @@ def index(request):
     return render(request, "playlist/index.html")
 
 
+@ratelimit(key='ip', rate='5/m', block=True)
 def login_view(request):
     if request.method == "POST":
 
@@ -42,6 +45,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("index"))
 
 
+@ratelimit(key='ip', rate='5/m', block=True)
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -56,12 +60,19 @@ def register(request):
             })
 
         # Attempt to create new user
+        user = User(username=username, email=email)
+        user.set_password(password)
         try:
-            user = User.objects.create_user(username, email, password)
-            user.save()
-        except IntegrityError as e:
+            user.full_clean()
+        except ValidationError as e:
             return render(request, "playlist/register.html", {
-                "message": f"Username {username} is already taken. Error: {str(e)}"
+                "message": " ".join(e.messages)
+            })
+        try:
+            user.save()
+        except IntegrityError:
+            return render(request, "playlist/register.html", {
+                "message": "Username is already taken."
             })
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
@@ -70,6 +81,7 @@ def register(request):
 
 
 @login_required
+@ratelimit(key='ip', rate='5/m', block=True)
 def change_password(request):
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -209,7 +221,10 @@ def playlists_api(request):
         data = json.loads(request.body)
         name = data.get("name")
         target_pace = data.get("pace")
-        song = Song.objects.get(id=data.get("song_id"))
+        try:
+            song = Song.objects.get(id=data.get("song_id"))
+        except Song.DoesNotExist:
+            return JsonResponse({"error": "Song not found"}, status=404)
         owner = request.user
         playlist = Playlist(
             owner=owner,
@@ -225,7 +240,10 @@ def playlists_api(request):
         # changes the viewability of the playlist
         data = json.loads(request.body)
         id = data.get("playlist_id")
-        playlist = Playlist.objects.get(id=id)
+        try:
+            playlist = Playlist.objects.get(id=id)
+        except Playlist.DoesNotExist:
+            return JsonResponse({"error": "Playlist not found"}, status=404)
         if playlist.owner != request.user:
             return JsonResponse(
                 {"error": "You do not have permission to modify this playlist"}, status=403
@@ -248,8 +266,11 @@ def modify_songs_api(request):
     # add song to existing playlist
     if request.method == "POST":
         data = json.loads(request.body)
-        playlist = Playlist.objects.get(owner=request.user, name=data.get('playlist_name'))
-        song = Song.objects.get(id=data.get('song_id'))
+        try:
+            playlist = Playlist.objects.get(owner=request.user, name=data.get('playlist_name'))
+            song = Song.objects.get(id=data.get('song_id'))
+        except (Playlist.DoesNotExist, Song.DoesNotExist):
+            return JsonResponse({"error": "Playlist or song not found"}, status=404)
         if data.get('add'):
             playlist.songs.add(song)
             return JsonResponse({"message": "Successfully added song to playlist"})
@@ -272,7 +293,11 @@ def profile_api(request):
         playlists = Playlist.objects.filter(owner=request.user)
     else:
         # Viewing someone else's profile
-        playlists = Playlist.objects.filter(owner=User.objects.get(username=target_username), is_public=True)
+        try:
+            target_user = User.objects.get(username=target_username)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        playlists = Playlist.objects.filter(owner=target_user, is_public=True)
 
     data = {
         "ids": [p.id for p in playlists],
