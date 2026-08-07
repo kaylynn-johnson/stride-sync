@@ -1,5 +1,7 @@
 # StrideSync
 
+**Live app:** [stride-sync.up.railway.app](https://stride-sync.up.railway.app/)
+
 Music playlists that match your running or walking pace.
 
 Enter a target pace (minutes per mile) and StrideSync recommends songs whose tempo lines up with your cadence, drawn from a database of 550,000+ tracks. Save songs into playlists, keep them private, or share them publicly via a unique link.
