@@ -1,6 +1,8 @@
 {% extends "playlist/layout.html" %}
 {% load static %}
 
+{% block title %}{{ target_user.username.capitalize }}'s Profile{% endblock %}
+
 {% block script %}
     <script src="{% static 'playlist/profile.js' %}"></script>
 {% endblock %}
