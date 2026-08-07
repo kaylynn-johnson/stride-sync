@@ -314,9 +314,11 @@ function addSongControl(song_id, playlist_name, target_pace) {
     if (Math.abs(song_pace - target_pace) > 1) {
         // Alert that the song is outside +/- 1min of playlist target pace
         const song_div = document.querySelector(`#song-${song_id}`);
-        //const song_warning = document.createElement('div');
-        // Add modal to warn user of mis-match pace and allow to override
-        song_div.innerHTML += `
+        // Add modal to warn user of mis-match pace and allow to override.
+        // insertAdjacentHTML (not innerHTML +=) so existing sibling elements
+        // (the more-info/add-to-playlist modals) aren't destroyed and rebuilt,
+        // which would silently drop their already-attached click listeners.
+        song_div.insertAdjacentHTML('beforeend', `
             <div class="form-popup warning-popup" id="warning-playlist-${song_id}" style="display: block;">
                 <form class="form-container" id="warning-form-${song_id}">
                     <h1>WARNING</h1>
@@ -330,8 +332,7 @@ function addSongControl(song_id, playlist_name, target_pace) {
                     <button type="button" class="btn btn-outline-secondary cancel" id="warning-close-${song_id}">Close</button>
                 </form>
             </div>
-        `;
-        //song_div.appendChild(song_warning);
+        `);
 
         const closeWarning = () => closeForm(`warning-playlist-${song_id}`);
         document.querySelector(`#warning-no-${song_id}`).addEventListener("click", closeWarning);
