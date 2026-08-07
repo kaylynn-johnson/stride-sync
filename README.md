@@ -1,8 +1,8 @@
-# Stride Sync
+# StrideSync
 
 Music playlists that match your running or walking pace.
 
-Enter a target pace (minutes per mile) and Stride Sync recommends songs whose tempo lines up with your cadence, drawn from a database of 550,000+ tracks. Save songs into playlists, keep them private, or share them publicly via a unique link.
+Enter a target pace (minutes per mile) and StrideSync recommends songs whose tempo lines up with your cadence, drawn from a database of 550,000+ tracks. Save songs into playlists, keep them private, or share them publicly via a unique link.
 
 ## Features
 
@@ -86,4 +86,4 @@ playlist/
 
 ## Data source
 
-Song and artist data comes from Serkan Tüysüz's [550K Spotify Songs: Audio, Lyrics & Genres](https://www.kaggle.com/datasets/serkantysz/550k-spotify-songs-audio-lyrics-and-genres) dataset on Kaggle. It's imported once via the management commands above — Stride Sync never calls the Spotify API at runtime.
+Song and artist data comes from Serkan Tüysüz's [550K Spotify Songs: Audio, Lyrics & Genres](https://www.kaggle.com/datasets/serkantysz/550k-spotify-songs-audio-lyrics-and-genres) dataset on Kaggle. It's imported once via the management commands above — StrideSync never calls the Spotify API at runtime.
