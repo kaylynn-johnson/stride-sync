@@ -69,7 +69,7 @@ CONTENT_SECURITY_POLICY = {
     "DIRECTIVES": {
         "default-src": ["'self'"],
         "script-src": ["'self'"],
-        "style-src": ["'self'", "'unsafe-inline'", "https://stackpath.bootstrapcdn.com", 
+        "style-src": ["'self'", "'unsafe-inline'", "https://stackpath.bootstrapcdn.com",
                       "https://fonts.googleapis.com", "https://pro.fontawesome.com"],
         "font-src": ["'self'", "https://fonts.gstatic.com", "https://pro.fontawesome.com"],
         "img-src": ["'self'", "data:"],
