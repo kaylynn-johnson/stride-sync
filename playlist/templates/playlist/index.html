@@ -9,7 +9,7 @@
 
     <div class="spacer"></div>
     <!-- Code adapted from https://freefrontend.com/css-infographics/#2023-ol-cards-l -->
-    <ol>
+    <ol class="card-grid numbered">
         <li style="--accent-color: #FF6F00">
             <div class="icon"><i class="fa-thin fa-person-running"></i></div>
             <div class="title">Input Pace</div>
@@ -31,4 +31,26 @@
             <div class="descr">Make playlists public to share with friends!</div>
         </li>
     </ol>
+
+    <div class="spacer"></div>
+    <h2>About the Data</h2>
+    <ul class="card-grid">
+        <li style="--accent-color: #1DB954">
+            <div class="icon"><i class="fa-light fa-database"></i></div>
+            <div class="title">550K Spotify Songs</div>
+            <div class="descr">
+                Recommendations are drawn from Serkan Tüysüz's <a href="https://www.kaggle.com/datasets/serkantysz/550k-spotify-songs-audio-lyrics-and-genres" target="_blank" rel="noopener noreferrer">550K Spotify Songs: Audio, Lyrics &amp; Genres</a> dataset on Kaggle
+            </div>
+        </li>
+        <li style="--accent-color: #6A1B9A">
+            <div class="icon"><i class="fa-light fa-bolt"></i></div>
+            <div class="title">Computed at Import</div>
+            <div class="descr">Each song's pace is calculated once from its tempo (BPM) when the dataset is loaded, not on the fly.</div>
+        </li>
+        <li style="--accent-color: #C62828">
+            <div class="icon"><i class="fa-light fa-wifi-slash"></i></div>
+            <div class="title">No Live API Calls</div>
+            <div class="descr">StrideSync never queries the Spotify API at runtime &mdash; all song data lives in our own database.</div>
+        </li>
+    </ul>
 {% endblock %}

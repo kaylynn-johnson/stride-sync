@@ -2,61 +2,65 @@
 @import url('https://pro.fontawesome.com/releases/v6.0.0-beta1/css/all.css');
 
 /* grid layout */
-ol, ol::before, ol::after, 
-ol *, ol *::before, ol *::after { margin: 0; padding: 0; box-sizing: border-box }
-ol { 
+.card-grid, .card-grid::before, .card-grid::after,
+.card-grid *, .card-grid *::before, .card-grid *::after { margin: 0; padding: 0; box-sizing: border-box }
+.card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: 1rem;
-  
+
   width: min(60rem, calc(100% - 2rem));
   margin-inline: auto;
   padding-block: 1rem;
-  
+
   list-style: none;
+}
+.card-grid.numbered {
   counter-reset: count;
 }
 
 /* card layout/styling */
-ol > li {
+.card-grid > li {
   --card-background-color: #f0f0f0;
   --card-text-color: #0F0F0F;
   --card-border-radius: 0.5rem;
   --card-padding-block: 1.5rem;
   --card-padding-inline: 1rem;
-  
+
   --outset-size: 0.75rem;
   --outset-background-color: #e5e5e5;
-  
+
   --number-font-size: 3rem;
   --number-overlap: 0.3rem;
   --number-font-family: 'Oswald', sans-serif;
   --number-font-weight: 500;
-  
+
   margin: var(--outset-size);
-  margin-top: calc(var(--number-font-size) - var(--number-overlap));
   border-radius: var(--card-border-radius);
   padding-block: var(--card-padding-block);
   padding-inline: var(--card-padding-inline);
-  
+
   color: var(--card-text-color);
   background-color: var(--card-background-color);
-  box-shadow: 
+  box-shadow:
     inset 1px 1px 0px rgb(255 255 255 / .5),
     inset -1px -1px 0px rgb(0 0 0 / .25),
     calc(var(--outset-size) * .25) calc(var(--outset-size) * .25) calc(var(--outset-size) * .5) rgb(0 0 0 / .25);
   position: relative;
+}
+.card-grid.numbered > li {
+  margin-top: calc(var(--number-font-size) - var(--number-overlap));
   counter-increment: count;
 }
 
-ol > li::after{
+.card-grid.numbered > li::after{
   content: counter(count, decimal-leading-zero);
   position: absolute;
-  
+
   bottom: calc(100% - var(--number-overlap));
   left: 50%;
   transform: translateX(-50%);
-  
+
   color: var(--accent-color);
   font-family: var(--number-font-family);
   font-weight: var(--number-font-weight);
@@ -64,7 +68,7 @@ ol > li::after{
   line-height: 1;
   z-index: -1;
 }
-ol > li::before{
+.card-grid > li::before{
   content: "";
   position: absolute;
   width: calc(100% + (var(--outset-size) * 2));
@@ -72,20 +76,26 @@ ol > li::before{
   bottom: calc(var(--outset-size) * -1);
   left: calc(var(--outset-size) * -1);
   z-index: -1;
-  
+
   border-bottom-left-radius: calc(var(--card-border-radius) + var(--outset-size));
   border-bottom-right-radius: calc(var(--card-border-radius) + var(--outset-size));
-  
+
   background-color: var(--outset-background-color);
-  
-  background-image: 
+
+  background-image:
     linear-gradient(to left, var(--outset-background-color) calc(var(--outset-size) * 2), transparent 0),
-    linear-gradient(135deg, var(--accent-color) 80%, var(--outset-background-color) 0);    
+    linear-gradient(135deg, var(--accent-color) 80%, var(--outset-background-color) 0);
 }
 
 /* card content */
 h1 {
   font-size: 2.5rem;
+  font-family: 'Oswald', sans-serif;
+  text-align: center;
+  font-weight: normal
+}
+h2 {
+  font-size: 1.5rem;
   font-family: 'Oswald', sans-serif;
   text-align: center;
   font-weight: normal
