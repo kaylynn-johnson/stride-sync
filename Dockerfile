@@ -17,3 +17,7 @@ RUN pip3 install -r requirements.txt
 
 # Copy project
 COPY . /usr/src/app/
+
+# Run as a non-root user
+RUN useradd -m appuser && chown -R appuser /usr/src/app
+USER appuser
