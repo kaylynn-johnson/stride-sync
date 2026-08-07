@@ -62,6 +62,16 @@ function getCsrfToken() {
     throw new Error('CSRF token meta tag not found');
 }
 
+// Escape untrusted text before interpolating into innerHTML
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function updateSongList(data) {
     const songList = document.querySelector("#recommendations-results");
     songList.innerHTML = "";
@@ -74,20 +84,20 @@ function updateSongList(data) {
         songItem.innerHTML = `
             <div class="list-card">
                 <div class="list-card-header">
-                    <div class="list-card-title-actionable">${song.title} by ${data.artists[song.id]} &ensp; <button class="btn btn-sm btn-outline-success" id="add-${song.id}"><strong>Add</strong></button></div>
+                    <div class="list-card-title-actionable">${escapeHtml(song.title)} by ${escapeHtml(data.artists[song.id])} &ensp; <button class="btn btn-sm btn-outline-success" id="add-${song.id}"><strong>Add</strong></button></div>
                     <div><button id="more-info-${song.id}" class="btn btn-primary btn-sm">More info</button></div>
                 </div>
                 <div class="list-card-meta">
-                    ${song.genre} | ${Math.round(song.pace * 10) / 10} min/mi | ${song.year}
+                    ${escapeHtml(song.genre)} | ${Math.round(song.pace * 10) / 10} min/mi | ${song.year}
                 </div>
             </div>
             <div id="modal-content-${song.id}" class="song-detail-panel">
                 <span class="close btn modal-close-btn" id="close-${song.id}">&times;</span>
-                <p><strong>${song.title}</strong> by ${data.artists[song.id]}</p>
+                <p><strong>${escapeHtml(song.title)}</strong> by ${escapeHtml(data.artists[song.id])}</p>
                 <ul>
-                    <li><strong>Album:</strong> ${song.album}</li>
+                    <li><strong>Album:</strong> ${escapeHtml(song.album)}</li>
                     <li><strong>Year:</strong> ${song.year}</li>
-                    <li><strong>Genre:</strong> ${song.genre}</li>
+                    <li><strong>Genre:</strong> ${escapeHtml(song.genre)}</li>
                     <li><strong>Popularity:</strong> ${song.popularity}/100</li>
                     <li><strong>Pace:</strong> <span id="pace-${song.id}">${Math.round(song.pace * 10) / 10}</span> min/mi</li>
                     <li><strong>Duration:</strong> ${timeString}</li>
@@ -105,12 +115,13 @@ function updateSongList(data) {
                     <label for="pace"><b>Target Pace</b> <input type="number" name="pace" value="${Math.round(song.pace * 10) / 10}" id="playlist-pace-${song.id}" disabled></label>
                     <div>
                         <button type="submit" class="btn btn-outline-secondary popup-btn-gap">Create</button>
-                        <button type="button" class="btn btn-outline-secondary cancel" onclick="closeForm('new-playlist-${song.id}')">Close</button>
+                        <button type="button" class="btn btn-outline-secondary cancel" id="cancel-new-playlist-${song.id}">Close</button>
                     </div>
                 </form>
             </div>
         `;
         songList.appendChild(songItem);
+        document.querySelector(`#cancel-new-playlist-${song.id}`).addEventListener("click", () => closeForm(`new-playlist-${song.id}`));
         modalControl(song.id);
         addControl(song.id);
         createPlaylist(song.id);
@@ -197,9 +208,19 @@ function addControl(song_id) {
                 playlistList.innerHTML = "";
                 for (let i = 0; i < (data.titles).length; i++) {
                     playlistList.innerHTML += `
-                        <li><a href="#song-${song_id}" onclick="addSongControl(${song_id},'${data.titles[i]}',${data.target_paces[i]})">${data.titles[i]}<a> (${data.target_paces[i]} min/mi pace)</li>`;
+                        <li><a href="#song-${song_id}" class="add-song-link" data-target-pace="${data.target_paces[i]}" data-playlist-name="${escapeHtml(data.titles[i])}">${escapeHtml(data.titles[i])}</a> (${data.target_paces[i]} min/mi pace)</li>`;
                 }
-                playlistList.innerHTML += `<li><a href="#song-${song_id}" onclick="openForm('new-playlist-${song_id}')">Add to new playlist</li>`;
+                playlistList.innerHTML += `<li><a href="#song-${song_id}" class="add-new-playlist-link">Add to new playlist</a></li>`;
+                playlistList.querySelectorAll(".add-song-link").forEach(link => {
+                    link.addEventListener("click", function(event) {
+                        event.preventDefault();
+                        addSongControl(song_id, this.dataset.playlistName, parseFloat(this.dataset.targetPace));
+                    });
+                });
+                playlistList.querySelector(".add-new-playlist-link").addEventListener("click", function(event) {
+                    event.preventDefault();
+                    openForm(`new-playlist-${song_id}`);
+                });
                 addModal.style.display = "block";
             })
         }
@@ -305,12 +326,16 @@ function addSongControl(song_id, playlist_name, target_pace) {
                     <div><strong>Would you still like to add it?</strong></div>
 
                     <button type="submit" class="btn btn-danger popup-btn-gap">Add Anyways</button>
-                    <button type="button" class="btn btn-outline-primary popup-btn-gap" onclick="closeForm('warning-playlist-${song_id}')">No</button>
-                    <button type="button" class="btn btn-outline-secondary cancel" onclick="closeForm('warning-playlist-${song_id}')">Close</button>
+                    <button type="button" class="btn btn-outline-primary popup-btn-gap" id="warning-no-${song_id}">No</button>
+                    <button type="button" class="btn btn-outline-secondary cancel" id="warning-close-${song_id}">Close</button>
                 </form>
             </div>
         `;
         //song_div.appendChild(song_warning);
+
+        const closeWarning = () => closeForm(`warning-playlist-${song_id}`);
+        document.querySelector(`#warning-no-${song_id}`).addEventListener("click", closeWarning);
+        document.querySelector(`#warning-close-${song_id}`).addEventListener("click", closeWarning);
 
         // add onsubmit action to Add Anyways
         document.querySelector(`#warning-form-${song_id}`).addEventListener("submit", function(event) {

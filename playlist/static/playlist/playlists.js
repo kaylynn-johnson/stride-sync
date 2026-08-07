@@ -26,18 +26,29 @@ document.addEventListener("DOMContentLoaded", function() {
             playlistItem.innerHTML = `
                 <div class="list-card">
                     <div class="list-card-header">
-                        <div class="list-card-title-actionable">${data.titles[i]} by ${data.owners[i]}</div>
-                        <div><button class="btn btn-primary btn-sm" onclick="goToPlaylist('${data.slugs[i]}')">View Playlist</button></div>
+                        <div class="list-card-title-actionable">${escapeHtml(data.titles[i])} by ${escapeHtml(data.owners[i])}</div>
+                        <div><button class="btn btn-primary btn-sm view-playlist-btn">View Playlist</button></div>
                     </div>
                     <div class="list-card-meta">
                         ${Math.round(data.target_paces[i] * 10) / 10} min/mi | ${data.num_songs[i]} songs
                     </div>
                 </div>
             `;
+            playlistItem.querySelector(".view-playlist-btn").addEventListener("click", () => goToPlaylist(data.slugs[i]));
             playlistDiv.appendChild(playlistItem);
         }
     });
 });
+
+// Escape untrusted text before interpolating into innerHTML
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
 
 function goToPlaylist(slug) {
     window.location.href = `/playlists/${slug}`;
