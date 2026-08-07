@@ -35,6 +35,11 @@ SECURE_SSL_REDIRECT = not DEBUG
 SECURE_HSTS_SECONDS = 0 if DEBUG else 31536000
 # CSRF_TRUSTED_ORIGINS = ["https://your-production-domain.example"]  # set once a real domain exists
 
+# PaaS platforms (e.g. Deployra) terminate TLS at their edge and forward requests
+# over plain HTTP, setting X-Forwarded-Proto. Without this, request.is_secure() is
+# always False behind the proxy, and SECURE_SSL_REDIRECT above would redirect-loop.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 # Application definition
 

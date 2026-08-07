@@ -32,6 +32,11 @@ jobs:
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
       DJANGO_SECRET_KEY: ci-dummy-secret-key-not-for-production
+      # Without this, DEBUG defaults to False, which flips on SECURE_SSL_REDIRECT.
+      # The test client and the Selenium live-server tests both run over plain
+      # HTTP, so every request would get redirected to a nonexistent HTTPS
+      # listener instead of reaching the view.
+      DJANGO_DEBUG: "True"
 
     steps:
       - uses: actions/checkout@v7

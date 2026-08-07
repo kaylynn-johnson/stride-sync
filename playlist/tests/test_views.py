@@ -8,13 +8,15 @@ from playlist.models import Artist, Playlist, Song, User
 
 
 class RegisterViewTests(TransactionTestCase):
-    # TransactionTestCase (not TestCase): the register view catches
-    # IntegrityError internally rather than letting it propagate. Under
-    # TestCase's wrapping per-test atomic transaction, Postgres marks that
-    # transaction aborted regardless of the in-app catch, so any further
-    # query in the same test raises TransactionManagementError. Production
-    # requests run in autocommit mode (no such wrapping transaction), so this
-    # is purely a test-isolation-strategy mismatch, not an application bug.
+    # TransactionTestCase (not TestCase): register() calls full_clean() before
+    # saving, so the normal duplicate-username path is now caught by
+    # validate_unique() (a SELECT) rather than a failing INSERT, and the
+    # IntegrityError except clause is just a defensive fallback for a
+    # genuine race condition that a sequential test run won't trigger. Kept
+    # as TransactionTestCase anyway in case that fallback path is ever
+    # exercised, since a caught IntegrityError under TestCase's wrapping
+    # atomic transaction would otherwise abort the transaction for the rest
+    # of the test regardless of the in-app catch.
 
     def test_get_renders_register_form(self):
         response = self.client.get(reverse("register"))
@@ -54,7 +56,7 @@ class RegisterViewTests(TransactionTestCase):
             "confirmation": "testpass123",
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "already taken")
+        self.assertContains(response, "already exists")
         self.assertEqual(User.objects.filter(username="existing").count(), 1)
 
 
@@ -313,17 +315,14 @@ class ModifySongsApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.mismatched_song, self.playlist.songs.all())
 
-    def test_nonexistent_playlist_or_song_raises_not_found(self):
-        # Documents current behavior: neither lookup is wrapped in a try/except
-        # in the view, so a missing playlist/song propagates as an unhandled
-        # DoesNotExist rather than a clean 404 response.
-        with self.assertRaises(Playlist.DoesNotExist):
-            self._post(
-                {"playlist_name": "Does Not Exist", "song_id": self.matching_song.id, "add": True}
-            )
+    def test_nonexistent_playlist_or_song_returns_not_found(self):
+        response = self._post(
+            {"playlist_name": "Does Not Exist", "song_id": self.matching_song.id, "add": True}
+        )
+        self.assertEqual(response.status_code, 404)
 
-        with self.assertRaises(Song.DoesNotExist):
-            self._post({"playlist_name": self.playlist.name, "song_id": 999999, "add": True})
+        response = self._post({"playlist_name": self.playlist.name, "song_id": 999999, "add": True})
+        self.assertEqual(response.status_code, 404)
 
 
 class PlaylistsApiTests(TestCase):
@@ -507,8 +506,7 @@ class ProfileApiTests(TestCase):
         self.assertIn(self.public_playlist.id, data["ids"])
         self.assertNotIn(self.private_playlist.id, data["ids"])
 
-    def test_unknown_username_raises_not_found(self):
-        # Documents current behavior: User.DoesNotExist isn't caught in the view.
+    def test_unknown_username_returns_not_found(self):
         self.client.force_login(self.owner)
-        with self.assertRaises(User.DoesNotExist):
-            self.client.get(reverse("profile_api"), {"username": "ghostuser"})
+        response = self.client.get(reverse("profile_api"), {"username": "ghostuser"})
+        self.assertEqual(response.status_code, 404)
